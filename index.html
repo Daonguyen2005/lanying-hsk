@@ -6,148 +6,135 @@
     <title>Lanying HSK - Nền tảng gia sư tiếng Trung thông minh</title>
     <meta name="description" content="Tìm gia sư tiếng Trung phù hợp nhất với bạn bằng AI Cosine Similarity và Chatbot RAG">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Extra styles for dynamic elements */
-        .nav-user { display:flex; align-items:center; gap:1rem; }
-        .nav-username { font-weight:600; color:var(--primary); }
         .tutor-grid-dynamic { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2rem; }
-        .loading-spinner { text-align:center; padding:3rem; color:var(--gray); font-size:1.1rem; }
-        .btn-secondary { background:#6366f1; color:white; border:none; padding:0.8rem 2rem; border-radius:8px; font-size:1.1rem; font-weight:600; cursor:pointer; transition:all 0.3s; }
-        .btn-secondary:hover { background:#4f46e5; transform:translateY(-2px); }
-
-        /* Chatbot styles */
-        .chatbot-widget {
-            position:fixed; bottom:30px; right:30px;
-            background:var(--primary); color:white;
-            padding:1rem 1.5rem; border-radius:50px;
-            cursor:pointer; box-shadow:0 4px 20px rgba(14,165,233,0.4);
-            font-weight:700; z-index:1000; font-size:1rem;
-            transition:all 0.3s; animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,100% { box-shadow:0 4px 20px rgba(14,165,233,0.4); }
-            50% { box-shadow:0 4px 30px rgba(14,165,233,0.7); }
-        }
-        .chatbot-widget:hover { transform:scale(1.05); }
-        .chat-window {
-            position:fixed; bottom:90px; right:30px;
-            width:360px; background:white; border-radius:16px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.15);
-            display:none; flex-direction:column; z-index:1000;
-            overflow:hidden; border:1px solid #e2e8f0;
-        }
-        .chat-header {
-            background:linear-gradient(135deg,var(--primary),#6366f1);
-            color:white; padding:1rem 1.5rem;
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .chat-header h4 { font-size:1rem; }
-        .chat-header small { opacity:0.8; font-size:0.75rem; }
-        .close-chat { background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; }
-        .chat-body {
-            padding:1rem; height:300px; overflow-y:auto;
-            background:#f8fafc; display:flex; flex-direction:column; gap:0.8rem;
-        }
-        .chat-msg { max-width:80%; padding:0.7rem 1rem; border-radius:12px; font-size:0.9rem; line-height:1.5; }
-        .chat-msg.ai { background:#e2e8f0; align-self:flex-start; border-radius:4px 12px 12px 12px; }
-        .chat-msg.user { background:var(--primary); color:white; align-self:flex-end; border-radius:12px 12px 4px 12px; }
-        .chat-msg.typing { color:var(--gray); font-style:italic; }
-        .chat-input-row { display:flex; padding:0.8rem; gap:0.5rem; border-top:1px solid #e2e8f0; background:white; }
-        .chat-input-row input { flex:1; padding:0.7rem 1rem; border:2px solid #e2e8f0; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.9rem; }
-        .chat-input-row input:focus { outline:none; border-color:var(--primary); }
-        .chat-input-row button { background:var(--primary); color:white; border:none; padding:0.7rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:600; }
-
-        /* Hero stats */
-        .hero-stats { display:flex; gap:2rem; justify-content:center; margin-top:2rem; flex-wrap:wrap; }
-        .stat { text-align:center; }
-        .stat-num { font-size:2rem; font-weight:800; color:var(--primary); }
-        .stat-label { font-size:0.85rem; color:var(--gray); }
-
-        /* Toast notification */
-        .toast { position:fixed; top:80px; right:20px; background:#0f172a; color:white; padding:1rem 1.5rem; border-radius:10px; z-index:9999; display:none; font-size:0.9rem; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
     </style>
 </head>
-<body>
+<body class="bg-light">
     <!-- Toast -->
-    <div class="toast" id="toast"></div>
+    <div class="toast-custom" id="toast"></div>
 
-    <!-- Modal Dashboard -->
-    <div id="dashboardModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
-        <div style="background:white; padding:2rem; border-radius:12px; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid #e2e8f0; padding-bottom:1rem;">
-                <h3 id="dashTitle" style="color:var(--primary); font-size:1.5rem; margin:0;">Bảng điều khiển</h3>
-                <button onclick="closeDashboard()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">✕</button>
+    <!-- Modal Dashboard (Bootstrap Modal) -->
+    <div class="modal fade" id="dashboardModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-bottom px-4 py-3">
+            <h5 class="modal-title text-primary-custom fw-bold fs-4" id="dashTitle">Bảng điều khiển</h5>
+            <button type="button" class="btn-close" onclick="closeDashboard()"></button>
+          </div>
+          <div class="modal-body p-4" id="dashContent">
+            <div class="text-center py-5 text-secondary">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 fw-medium">⏳ Đang tải dữ liệu...</p>
             </div>
-            <div id="dashContent">
-                <div class="loading-spinner">⏳ Đang tải dữ liệu...</div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">
-            <span class="logo-icon" style="font-size:1.8rem;font-weight:800;color:#0ea5e9;font-family:serif;">&#20013;</span>
-            <h1>Lanying HSK</h1>
-        </div>
-        <ul class="nav-links">
-            <li><a href="#">Trang chủ</a></li>
-            <li><a href="#tutors">Gia sư</a></li>
-            <li id="nav-survey-link"><a href="frontend/pages/survey.html">Khảo sát AI</a></li>
-        </ul>
-        <div class="nav-actions" id="navActions">
-            <button class="btn-outline" onclick="window.location='frontend/pages/login.html'">Đăng nhập</button>
-            <button class="btn-primary" onclick="window.location='frontend/pages/login.html?tab=register'">Đăng ký miễn phí</button>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <span class="logo-icon">&#20013;</span>
+                <h1 class="m-0 fs-4 fw-bold text-primary-custom">Lanying HSK</h1>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
+                <ul class="navbar-nav mx-auto fw-semibold">
+                    <li class="nav-item"><a class="nav-link px-3" href="#">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#tutors">Gia sư</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 text-primary-custom" href="frontend/pages/survey.html">Khảo sát AI</a></li>
+                </ul>
+                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" id="navActions">
+                    <button class="btn btn-outline-secondary fw-semibold rounded-3 px-4 py-2" onclick="window.location='frontend/pages/login.html'">Đăng nhập</button>
+                    <button class="btn btn-primary-custom rounded-3 px-4 py-2" onclick="window.location='frontend/pages/login.html?tab=register'">Đăng ký miễn phí</button>
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero">
-        <div class="hero-content">
-            <div class="badge">✨ AI Powered by Cosine Similarity & RAG</div>
-            <h2>Tìm Gia Sư Tiếng Trung<br>Hoàn Hảo Chỉ Trong 30 Giây</h2>
-            <p>Hệ thống AI phân tích nhu cầu của bạn và đề xuất gia sư phù hợp nhất. Hỗ trợ lộ trình học từ HSK 1 đến HSK 6.</p>
-            <div class="hero-buttons">
-                <button id="hero-survey-btn" class="btn-primary btn-large" onclick="window.location='frontend/pages/survey.html'">🎯 Khảo sát lộ trình ngay</button>
-                <button class="btn-secondary btn-large" onclick="document.getElementById('tutors').scrollIntoView({behavior:'smooth'})">Xem gia sư</button>
-            </div>
-            <div class="hero-stats">
-                <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Gia sư chất lượng</div></div>
-                <div class="stat"><div class="stat-num">1000+</div><div class="stat-label">Học viên</div></div>
-                <div class="stat"><div class="stat-num">HSK 1-6</div><div class="stat-label">Đầy đủ cấp độ</div></div>
-                <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">AI hỗ trợ</div></div>
+    <header class="hero py-5" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 100%); min-height: 80vh; display: flex; align-items: center;">
+        <div class="container">
+            <div class="row justify-content-center text-center fade-in">
+                <div class="col-lg-8 col-xl-7">
+                    <div class="badge-custom shadow-sm mb-4">✨ AI Powered by Cosine Similarity & RAG</div>
+                    <h2 class="display-4 fw-bolder text-dark mb-4 lh-sm">Tìm Gia Sư Tiếng Trung<br>Hoàn Hảo Chỉ Trong 30 Giây</h2>
+                    <p class="lead text-secondary mb-5 px-md-4">Hệ thống AI phân tích nhu cầu của bạn và đề xuất gia sư phù hợp nhất. Hỗ trợ lộ trình học từ HSK 1 đến HSK 6.</p>
+                    <div class="d-flex justify-content-center gap-3 flex-column flex-sm-row mb-5">
+                        <button class="btn btn-primary-custom btn-lg px-5 py-3 rounded-pill shadow-sm" onclick="window.location='frontend/pages/survey.html'">🎯 Khảo sát lộ trình ngay</button>
+                        <button class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow-sm text-secondary fw-bold" onclick="document.getElementById('tutors').scrollIntoView({behavior:'smooth'})">Xem gia sư</button>
+                    </div>
+                    <div class="row text-center mt-4">
+                        <div class="col-6 col-md-3 mb-4">
+                            <h3 class="text-primary-custom fw-bold display-6 mb-0">50+</h3>
+                            <span class="text-muted small text-uppercase fw-semibold">Gia sư chất lượng</span>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <h3 class="text-primary-custom fw-bold display-6 mb-0">1K+</h3>
+                            <span class="text-muted small text-uppercase fw-semibold">Học viên</span>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <h3 class="text-primary-custom fw-bold display-6 mb-0">1-6</h3>
+                            <span class="text-muted small text-uppercase fw-semibold">Đầy đủ cấp HSK</span>
+                        </div>
+                        <div class="col-6 col-md-3 mb-4">
+                            <h3 class="text-primary-custom fw-bold display-6 mb-0">24/7</h3>
+                            <span class="text-muted small text-uppercase fw-semibold">AI hỗ trợ</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- How it works -->
-    <section class="how-it-works">
-        <h3 class="section-title">Quy Trình Học Tập Thông Minh</h3>
-        <div class="steps-container">
-            <div class="step-card">
-                <div class="step-icon">📝</div>
-                <h4>1. Khảo sát đầu vào</h4>
-                <p>Cung cấp mục tiêu HSK, thời gian và trình độ hiện tại của bạn trong 1 phút.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-icon">🤖</div>
-                <h4>2. AI Phân Tích</h4>
-                <p>Thuật toán <strong>Cosine Similarity</strong> tính toán và tìm gia sư khớp nhất với hồ sơ của bạn.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-icon">🎯</div>
-                <h4>3. Nhận Gợi Ý</h4>
-                <p>Xem top 3 gia sư phù hợp kèm điểm tương thích và đặt lịch học ngay.</p>
+    <section class="py-5 bg-white">
+        <div class="container py-5">
+            <h3 class="text-center fw-bold mb-5 fs-2 text-dark">Quy Trình Học Tập Thông Minh</h3>
+            <div class="row g-4 mt-2">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
+                        <div class="display-3 mb-4">📝</div>
+                        <h4 class="fw-bold h5 mb-3 text-dark">1. Khảo sát đầu vào</h4>
+                        <p class="text-secondary mb-0">Cung cấp mục tiêu HSK, thời gian và trình độ hiện tại của bạn trong 1 phút.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
+                        <div class="display-3 mb-4">🤖</div>
+                        <h4 class="fw-bold h5 mb-3 text-dark">2. AI Phân Tích</h4>
+                        <p class="text-secondary mb-0">Thuật toán <strong>Cosine Similarity</strong> tính toán và tìm gia sư khớp nhất với hồ sơ của bạn.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
+                        <div class="display-3 mb-4">🎯</div>
+                        <h4 class="fw-bold h5 mb-3 text-dark">3. Nhận Gợi Ý</h4>
+                        <p class="text-secondary mb-0">Xem top 3 gia sư phù hợp kèm điểm tương thích và đặt lịch học ngay.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Tutors Section - Load từ API -->
-    <section id="tutors" class="tutor-section">
-        <h3 class="section-title">Gia Sư Nổi Bật</h3>
-        <div id="tutorGrid" class="tutor-grid-dynamic">
-            <div class="loading-spinner">⏳ Đang tải danh sách gia sư từ hệ thống...</div>
+    <!-- Tutors Section -->
+    <section id="tutors" class="py-5 bg-light">
+        <div class="container py-5">
+            <h3 class="fw-bold mb-5 text-center fs-2 text-dark">Gia Sư Nổi Bật</h3>
+            <div id="tutorGrid" class="row g-4">
+                <div class="col-12 text-center py-5 text-secondary">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-3 fw-medium">⏳ Đang tải danh sách gia sư từ hệ thống...</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -171,6 +158,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="frontend/js/api.js"></script>
     <script>
         const API = '';
@@ -190,8 +178,8 @@
 
             // Hiện giao diện Học sinh
             document.getElementById('navActions').innerHTML = `
-                <button class="btn-outline" style="border:none; color:var(--primary); font-weight:600; text-decoration:underline;" onclick="openDashboard()">Xin chào Học sinh <b>${user.name}</b></button>
-                <button class="btn-outline" onclick="logout()">Đăng xuất</button>
+                <button class="btn btn-link text-primary-custom fw-bold text-decoration-none px-3" onclick="openDashboard()">Xin chào Học sinh ${user.name}</button>
+                <button class="btn btn-outline-secondary fw-semibold rounded-3 px-3 py-2" onclick="logout()">Đăng xuất</button>
             `;
         }
 
@@ -216,33 +204,37 @@
                 const grid = document.getElementById('tutorGrid');
 
                 if (!tutors.length) {
-                    grid.innerHTML = '<p style="text-align:center;color:#64748b">Chưa có gia sư nào.</p>';
+                    grid.innerHTML = '<div class="col-12"><p class="text-center text-muted">Chưa có gia sư nào.</p></div>';
                     return;
                 }
 
                 grid.innerHTML = tutors.map(t => `
-                    <div class="tutor-card">
-                        <div class="tutor-header">
-                            <div class="tutor-avatar">${t.name.charAt(0)}</div>
-                            <div class="tutor-info">
-                                <h4>${t.name}</h4>
-                                <span class="tutor-level" style="font-size:0.85rem;color:#0ea5e9;">Đạt HSK ${t.hsk_level} | Dạy HSK ${t.teaching_levels} | ${t.specialization || ''}</span>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 tutor-card border-0 shadow-sm rounded-4 bg-white">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center gap-3 mb-4">
+                                    <div class="tutor-avatar fs-4 shadow-sm">${t.name.charAt(0)}</div>
+                                    <div>
+                                        <h4 class="h5 fw-bold text-dark mb-1">${t.name}</h4>
+                                        <span class="text-primary-custom fw-semibold small">Đạt HSK ${t.hsk_level} | Dạy HSK ${t.teaching_levels}</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary small mb-4" style="min-height: 40px; line-height: 1.6;">${t.bio || ''}</p>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <span class="badge bg-light text-secondary border px-2 py-1 fw-medium">Dạy HSK ${t.teaching_levels}</span>
+                                    ${t.specialization ? `<span class="badge bg-light text-secondary border px-2 py-1 fw-medium">${t.specialization}</span>` : ''}
+                                </div>
                             </div>
-                        </div>
-                        <p style="color:#64748b;font-size:0.9rem;margin-bottom:1rem">${t.bio || ''}</p>
-                        <div class="tutor-tags">
-                            <span class="tag">Dạy HSK ${t.teaching_levels}</span>
-                            <span class="tag">${t.specialization || ''}</span>
-                        </div>
-                        <div class="tutor-footer">
-                            <span class="price">${Number(t.hourly_rate || 0).toLocaleString('vi-VN')}đ/giờ</span>
-                            <button class="btn-primary btn-small" onclick="bookTutor(${t.id},'${t.name}')">Đặt lịch</button>
+                            <div class="card-footer bg-transparent border-top p-4 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark fs-5">${Number(t.hourly_rate || 0).toLocaleString('vi-VN')}đ/h</span>
+                                <button class="btn btn-primary-custom px-4 py-2 rounded-3" onclick="bookTutor(${t.id},'${t.name}')">Đặt lịch</button>
+                            </div>
                         </div>
                     </div>
                 `).join('');
             } catch(e) {
                 document.getElementById('tutorGrid').innerHTML = `
-                    <div style="text-align:center;color:#ef4444;padding:2rem">
+                    <div class="col-12 text-center text-danger py-4">
                         Không thể tải dữ liệu. Backend đang chạy không? <br>
                         <small>Lỗi: ${e.message}</small>
                     </div>`;
@@ -269,79 +261,46 @@
         }
 
         // ---- Dashboard Modal ----
+        let dashModalInstance = null;
         async function openDashboard() {
-            document.getElementById('dashboardModal').style.display = 'flex';
-            document.getElementById('dashContent').innerHTML = '<div class="loading-spinner">⏳ Đang tải dữ liệu...</div>';
+            if (!dashModalInstance) {
+                dashModalInstance = new bootstrap.Modal(document.getElementById('dashboardModal'));
+            }
+            dashModalInstance.show();
+            document.getElementById('dashContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 fw-medium text-secondary">⏳ Đang tải dữ liệu...</p></div>';
             try {
                 const data = await AuthAPI.getDashboard();
                 if (data.role === 'tutor') {
-                    document.getElementById('dashTitle').textContent = `Thống kê Gia sư: ${data.name}`;
-                    let html = `
-                        <div style="background:#f8fafc; padding:1rem; border-radius:8px; margin-bottom:1rem;">
-                            <p><strong>HSK hiện tại:</strong> Cấp ${data.hsk_level}</p>
-                            <p><strong>Các cấp đang dạy:</strong> HSK ${data.teaching_levels}</p>
-                        </div>
-                        <h4 style="margin-bottom:0.5rem; color:#334155;">Danh sách học sinh đặt lịch:</h4>
-                    `;
-                    if (data.bookings.length === 0) {
-                        html += `<p style="color:#64748b">Chưa có học sinh nào đặt lịch.</p>`;
-                    } else {
-                        html += `<ul style="list-style:none; padding:0;">`;
-                        data.bookings.forEach(b => {
-                            const date = new Date(b.created_at).toLocaleString('vi-VN');
-                            let actionBtns = '';
-                            if (b.status === 'pending') {
-                                actionBtns = `
-                                    <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
-                                        <button onclick="updateBooking(${b.id}, 'accepted')" style="background:#16a34a; color:white; border:none; padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer;">Duyệt</button>
-                                        <button onclick="updateBooking(${b.id}, 'rejected')" style="background:#dc2626; color:white; border:none; padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer;">Từ chối</button>
-                                    </div>
-                                `;
-                            }
-                            html += `<li style="padding:1rem; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:0.5rem;">
-                                <strong>Học viên:</strong> ${b.student_name} <br>
-                                <small style="color:#64748b">Ngày đặt: ${date} | Trạng thái: <b>${b.status}</b></small>
-                                ${actionBtns}
-                            </li>`;
-                        });
-                        html += `</ul>`;
-                    }
-                    document.getElementById('dashContent').innerHTML = html;
+                    // Tutor dashboard logic not used here (redirected earlier)
                 } else {
                     document.getElementById('dashTitle').textContent = `Lịch sử học tập: ${data.name}`;
-                    let html = `<h4 style="margin-bottom:0.5rem; color:#334155;">Gia sư bạn đã đăng ký:</h4>`;
+                    let html = `<h5 class="mb-4 fw-bold text-dark">Gia sư bạn đã đăng ký:</h5>`;
                     if (data.bookings.length === 0) {
-                        html += `<p style="color:#64748b">Bạn chưa đặt lịch với gia sư nào.</p>`;
+                        html += `<p class="text-muted">Bạn chưa đặt lịch với gia sư nào.</p>`;
                     } else {
-                        html += `<ul style="list-style:none; padding:0;">`;
+                        html += `<div class="list-group list-group-flush gap-2">`;
                         data.bookings.forEach(b => {
                             const date = new Date(b.created_at).toLocaleString('vi-VN');
-                            html += `<li style="padding:1rem; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:0.5rem;">
-                                <strong>Gia sư:</strong> ${b.tutor_name} <br>
-                                <small style="color:#64748b">Ngày đặt: ${date} | Trạng thái: ${b.status}</small>
-                            </li>`;
+                            let statusBadge = b.status === 'pending' ? '<span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill">Đang chờ duyệt</span>' : (b.status === 'accepted' ? '<span class="badge bg-success-subtle text-success-emphasis px-3 py-2 rounded-pill">Đã duyệt</span>' : '<span class="badge bg-danger-subtle text-danger-emphasis px-3 py-2 rounded-pill">Từ chối</span>');
+                            html += `<div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center p-3 border rounded-3 bg-white shadow-sm">
+                                <div class="mb-2 mb-md-0">
+                                    <h6 class="mb-1 fw-bold text-dark fs-5">${b.tutor_name}</h6>
+                                    <small class="text-secondary"><i class="bi bi-calendar3"></i> Ngày đặt: ${date}</small>
+                                </div>
+                                <div>${statusBadge}</div>
+                            </div>`;
                         });
-                        html += `</ul>`;
+                        html += `</div>`;
                     }
                     document.getElementById('dashContent').innerHTML = html;
                 }
             } catch (err) {
-                document.getElementById('dashContent').innerHTML = `<p style="color:#ef4444">Lỗi tải dữ liệu: ${err.message}</p>`;
+                document.getElementById('dashContent').innerHTML = `<p class="text-danger">Lỗi tải dữ liệu: ${err.message}</p>`;
             }
         }
 
         function closeDashboard() {
-            document.getElementById('dashboardModal').style.display = 'none';
-        }
-
-        async function updateBooking(bookingId, status) {
-            try {
-                await TutorAPI.updateBookingStatus(bookingId, status);
-                showToast(`Đã ${status === 'accepted' ? 'duyệt' : 'từ chối'} học viên thành công!`);
-                openDashboard(); // Reload data
-            } catch (err) {
-                showToast(`Lỗi: ${err.message}`);
-            }
+            if (dashModalInstance) dashModalInstance.hide();
         }
 
         // ---- Chatbot ----

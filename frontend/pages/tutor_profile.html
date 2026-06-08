@@ -4,137 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ Gia sư - Lanying HSK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../style.css">
-    <style>
-        .container { max-width: 800px; margin: 4rem auto; padding: 2rem; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); margin-bottom: 2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #334155; }
-        input[type="text"], input[type="number"], select, textarea {
-            width: 100%; padding: 0.8rem; border: 2px solid #e2e8f0; border-radius: 8px; font-family: 'Inter', sans-serif;
-            transition: border-color 0.2s; font-size: 1rem;
-        }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; width: 100%; }
-        .btn-submit:hover { background: #0284c7; }
-        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: none; font-weight: 600; }
-        .alert.success { background: #dcfce7; color: #166534; display: block; }
-        .alert.error { background: #fee2e2; color: #991b1b; display: block; }
-    </style>
 </head>
-<body style="background: #f8fafc">
+<body class="bg-light">
+    <!-- Toast -->
+    <div class="toast-custom" id="toast"></div>
 
-    <nav class="navbar">
-        <div class="logo">
-            <span class="logo-icon" style="font-size:1.8rem;font-weight:800;color:#0ea5e9;font-family:serif;">&#20013;</span>
-            <h1 style="cursor:pointer" onclick="window.location='../../index.html'">Lanying HSK</h1>
-        </div>
-        <div class="nav-actions">
-            <button class="btn-outline" onclick="window.location='../../index.html'">Về trang chủ</button>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="tutor_index.html">
+                <span class="logo-icon">&#20013;</span>
+                <h1 class="m-0 fs-4 fw-bold text-primary-custom">Lanying Gia sư</h1>
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
+                <ul class="navbar-nav mx-auto fw-semibold">
+                    <li class="nav-item"><a class="nav-link px-3" href="tutor_index.html">Quản lý lớp</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 active text-primary-custom" href="tutor_profile.html">Hồ sơ cá nhân</a></li>
+                </ul>
+                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" id="navActions">
+                    <!-- Render via JS -->
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="container">
-        <h2>Quản lý Hồ sơ năng lực</h2>
-        
-        <div id="msg" class="alert" style="display:none"></div>
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                    <div class="text-center mb-5">
+                        <div class="tutor-avatar fs-1 shadow-sm mx-auto mb-3" style="width: 80px; height: 80px;" id="avatar-preview">T</div>
+                        <h2 class="fw-bold text-dark m-0">Cập nhật Hồ sơ</h2>
+                        <p class="text-secondary mt-2">Hồ sơ chi tiết giúp AI giới thiệu bạn tới đúng học viên hơn</p>
+                    </div>
 
-        <form id="profile-form" onsubmit="saveProfile(event)">
-            <div class="form-group">
-                <label>Trình độ HSK cao nhất của bạn:</label>
-                <select id="hsk_level" required>
-                    <option value="1">HSK 1</option>
-                    <option value="2">HSK 2</option>
-                    <option value="3">HSK 3</option>
-                    <option value="4">HSK 4</option>
-                    <option value="5">HSK 5</option>
-                    <option value="6">HSK 6</option>
-                </select>
+                    <form id="profile-form" onsubmit="saveProfile(event)">
+                        <!-- Hourly Rate -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Mức lương yêu cầu (VNĐ/giờ) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-lg bg-light" id="hourly_rate" placeholder="Ví dụ: 150000" required>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Giới thiệu bản thân (Bio)</label>
+                            <textarea class="form-control form-control-lg bg-light" id="bio" rows="4" placeholder="Giới thiệu kinh nghiệm giảng dạy, phương pháp của bạn..."></textarea>
+                        </div>
+
+                        <!-- Teaching Levels -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark mb-3 d-block">Bạn có thể dạy HSK cấp độ nào? <span class="text-danger">*</span></label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="1" id="hsk1">
+                                    <label class="form-check-label fw-medium" for="hsk1">HSK 1</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="2" id="hsk2">
+                                    <label class="form-check-label fw-medium" for="hsk2">HSK 2</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="3" id="hsk3">
+                                    <label class="form-check-label fw-medium" for="hsk3">HSK 3</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="4" id="hsk4">
+                                    <label class="form-check-label fw-medium" for="hsk4">HSK 4</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="5" id="hsk5">
+                                    <label class="form-check-label fw-medium" for="hsk5">HSK 5</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-levels" type="checkbox" value="6" id="hsk6">
+                                    <label class="form-check-label fw-medium" for="hsk6">HSK 6</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Specialization -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Thế mạnh giảng dạy (Tùy chọn)</label>
+                            <input type="text" class="form-control form-control-lg bg-light" id="specialization" placeholder="Ví dụ: Luyện giao tiếp, Chữa phát âm, Trẻ em...">
+                        </div>
+
+                        <!-- Teaching Modes -->
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-dark mb-3 d-block">Hình thức dạy</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-modes" type="checkbox" value="online" id="mode-online">
+                                    <label class="form-check-label fw-medium" for="mode-online">Online (Zoom/Meet)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input teaching-modes" type="checkbox" value="offline" id="mode-offline">
+                                    <label class="form-check-label fw-medium" for="mode-offline">Offline (Gặp trực tiếp)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary-custom w-100 py-3 rounded-3 fs-5 fw-bold shadow-sm" type="submit" id="submitBtn">Lưu Hồ Sơ</button>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label>Các cấp độ bạn tự tin giảng dạy (Ví dụ: "1,2,3"):</label>
-                <input type="text" id="teaching_levels" placeholder="Nhập các số cách nhau bởi dấu phẩy" required>
-                <small style="color:#64748b">Lưu ý: Bạn chỉ có thể dạy cấp độ nhỏ hơn hoặc bằng HSK cao nhất của mình.</small>
-            </div>
-
-            <div class="form-group">
-                <label>Thế mạnh / Chuyên môn chính:</label>
-                <input type="text" id="specialization" placeholder="Ví dụ: Giao tiếp, Luyện thi, Thương mại..." required>
-            </div>
-
-            <div class="form-group">
-                <label>Mức lương mong muốn (VND / 1 giờ học):</label>
-                <input type="number" id="hourly_rate" placeholder="150000" min="0" step="10000" required>
-            </div>
-
-            <div class="form-group">
-                <label>Giới thiệu bản thân (Bio):</label>
-                <textarea id="bio" rows="4" placeholder="Giới thiệu kinh nghiệm giảng dạy của bạn..." required></textarea>
-            </div>
-
-            <button type="submit" class="btn-submit">Lưu Hồ sơ & Bật tìm kiếm AI</button>
-        </form>
+        </div>
     </div>
 
-    <script src="../js/api.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
     <script>
-        // Kiểm tra quyền
-        const user = getUser();
-        if (!user || user.role !== 'tutor') {
-            alert('Trang này chỉ dành cho Gia sư!');
-            window.location.href = '../../index.html';
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('lanying_token');
+            localStorage.removeItem('lanying_user');
+            window.location.href = 'login.html';
+        }
+
+        async function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            const token = localStorage.getItem('lanying_token');
+            if (!user || !token || user.role !== 'tutor') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('navActions').innerHTML = `
+                <span class="navbar-text text-primary-custom fw-semibold me-3">Xin chào Giáo viên <b>${user.name}</b></span>
+                <button class="btn btn-outline-secondary fw-semibold rounded-3 px-3 py-2" onclick="logout()">Đăng xuất</button>
+            `;
+            document.getElementById('avatar-preview').textContent = user.name.charAt(0).toUpperCase();
         }
 
         async function loadProfile() {
             try {
-                const data = await TutorAPI.getMyProfile();
-                document.getElementById('hsk_level').value = data.hsk_level || 1;
-                document.getElementById('teaching_levels').value = data.teaching_levels || "1";
-                document.getElementById('specialization').value = data.specialization || "";
-                document.getElementById('hourly_rate').value = data.hourly_rate || 0;
-                document.getElementById('bio').value = data.bio || "";
+                const data = await TutorAPI.getProfile();
+                
+                if (data.hourly_rate) document.getElementById('hourly_rate').value = data.hourly_rate;
+                if (data.bio) document.getElementById('bio').value = data.bio;
+                if (data.specialization) document.getElementById('specialization').value = data.specialization;
+
+                if (data.teaching_levels) {
+                    const levels = data.teaching_levels.split(',').map(s => s.trim());
+                    document.querySelectorAll('.teaching-levels').forEach(cb => {
+                        if (levels.includes(cb.value)) cb.checked = true;
+                    });
+                }
+                
+                // Assuming backend will add modes later, we handle it gracefully if missing
+                if (data.teaching_modes) {
+                    const modes = data.teaching_modes.split(',').map(s => s.trim());
+                    document.querySelectorAll('.teaching-modes').forEach(cb => {
+                        if (modes.includes(cb.value)) cb.checked = true;
+                    });
+                }
             } catch (err) {
-                console.error(err);
+                showToast(`Chưa thể tải dữ liệu cũ: ${err.message}`);
             }
         }
 
         async function saveProfile(e) {
             e.preventDefault();
-            const msgEl = document.getElementById('msg');
-            msgEl.style.display = 'none';
-            msgEl.className = 'alert';
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = 'Đang lưu...';
+            btn.disabled = true;
 
-            const btnEl = document.querySelector('.btn-submit');
-            btnEl.disabled = true;
-            btnEl.textContent = 'Đang lưu...';
+            const hourly_rate = parseInt(document.getElementById('hourly_rate').value);
+            const bio = document.getElementById('bio').value;
+            const specialization = document.getElementById('specialization').value;
 
-            const payload = {
-                hsk_level: parseInt(document.getElementById('hsk_level').value),
-                teaching_levels: document.getElementById('teaching_levels').value,
-                specialization: document.getElementById('specialization').value,
-                hourly_rate: parseFloat(document.getElementById('hourly_rate').value),
-                bio: document.getElementById('bio').value
-            };
+            const levels = Array.from(document.querySelectorAll('.teaching-levels:checked')).map(cb => cb.value).join(',');
+            
+            // Collect teaching modes to add to Bio or if backend supports it natively in future
+            const modes = Array.from(document.querySelectorAll('.teaching-modes:checked')).map(cb => cb.value).join(',');
+            let finalBio = bio;
+            if (modes) {
+                finalBio = bio + `\n[Hình thức dạy: ${modes}]`;
+            }
+
+            if (!levels) {
+                showToast('Vui lòng chọn ít nhất 1 cấp độ HSK bạn có thể dạy!');
+                btn.textContent = 'Lưu Hồ Sơ';
+                btn.disabled = false;
+                return;
+            }
 
             try {
-                await TutorAPI.updateMyProfile(payload);
-                msgEl.textContent = "✅ Lưu hồ sơ thành công! AI đã cập nhật điểm tương thích của bạn.";
-                msgEl.classList.add('success');
-                msgEl.style.display = 'block';
-                window.scrollTo({top:0, behavior:'smooth'});
-            } catch(err) {
-                msgEl.textContent = "❌ " + err.message;
-                msgEl.classList.add('error');
-                msgEl.style.display = 'block';
-                window.scrollTo({top:0, behavior:'smooth'});
+                await TutorAPI.updateProfile(bio, hourly_rate, specialization, levels);
+                showToast('Lưu hồ sơ thành công!');
+                // Reload after delay
+                setTimeout(() => window.location.reload(), 1500);
+            } catch (err) {
+                showToast(`Lỗi lưu hồ sơ: ${err.message}`);
             } finally {
-                btnEl.disabled = false;
-                btnEl.textContent = 'Lưu Hồ sơ & Bật tìm kiếm AI';
+                btn.textContent = 'Lưu Hồ Sơ';
+                btn.disabled = false;
             }
         }
 
+        checkAuth();
         loadProfile();
     </script>
 </body>

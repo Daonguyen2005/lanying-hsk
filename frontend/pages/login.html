@@ -5,127 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Lanying HSK</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family:'Inter',sans-serif;
-            min-height:100vh;
             background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 100%);
-            display:flex; align-items:center; justify-content:center;
+            min-height: 100vh;
         }
-        .card {
-            background:white; border-radius:20px; padding:2.5rem;
-            width:100%; max-width:420px;
-            box-shadow: 0 20px 60px rgba(14,165,233,0.15);
+        .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+            background-color: var(--primary) !important;
+            color: white !important;
         }
-        .logo { text-align:center; margin-bottom:2rem; }
-        .logo span { font-size:2.5rem; font-weight:800; color:#0ea5e9; font-family:serif; }
-        .logo h1 { color:#0ea5e9; font-size:1.8rem; }
-        .logo p { color:#64748b; font-size:0.9rem; }
-        .tabs { display:flex; gap:0.5rem; margin-bottom:1.5rem; background:#f1f5f9; padding:4px; border-radius:8px; }
-        .tab-btn {
-            flex:1; padding:0.6rem; border:none; background:transparent;
-            border-radius:6px; cursor:pointer; font-weight:600; color:#64748b;
-            transition:all 0.2s;
+        .nav-pills .nav-link {
+            color: var(--gray);
+            font-weight: 600;
         }
-        .tab-btn.active { background:white; color:#0ea5e9; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom:1.2rem; }
-        label { display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem; color:#374151; }
-        input {
-            width:100%; padding:0.8rem 1rem; border:2px solid #e2e8f0;
-            border-radius:10px; font-size:1rem; font-family:'Inter',sans-serif;
-            transition:border-color 0.2s;
-        }
-        input:focus { outline:none; border-color:#0ea5e9; }
-        .btn-submit {
-            width:100%; padding:0.9rem; background:#0ea5e9; color:white;
-            border:none; border-radius:10px; font-size:1rem; font-weight:700;
-            cursor:pointer; transition:all 0.3s;
-        }
-        .btn-submit:hover { background:#0284c7; transform:translateY(-2px); }
-        .error { color:#ef4444; font-size:0.85rem; margin-top:0.5rem; display:none; }
-        .success { color:#22c55e; font-size:0.85rem; margin-top:0.5rem; display:none; }
-        .back-link { text-align:center; margin-top:1rem; }
-        .back-link a { color:#0ea5e9; text-decoration:none; font-size:0.9rem; }
-        #register-form { display:none; }
     </style>
 </head>
-<body>
-    <div class="card">
-        <div class="logo">
-            <span>&#20013;</span>
-            <h1>Lanying HSK</h1>
-            <p>Nền tảng gia sư tiếng Trung thông minh</p>
-        </div>
+<body class="d-flex align-items-center justify-content-center">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                    <div class="text-center mb-4">
+                        <span class="logo-icon fs-1">&#20013;</span>
+                        <h1 class="text-primary-custom fs-3 fw-bold mt-2">Lanying HSK</h1>
+                        <p class="text-muted">Nền tảng gia sư tiếng Trung thông minh</p>
+                    </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Đăng nhập</button>
-            <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Đăng ký</button>
-        </div>
+                    <ul class="nav nav-pills nav-fill bg-light rounded-3 p-1 mb-4" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active rounded-3" id="tab-login" onclick="switchTab('login')" type="button">Đăng nhập</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-3" id="tab-register" onclick="switchTab('register')" type="button">Đăng ký</button>
+                        </li>
+                    </ul>
 
-        <!-- Login Form -->
-        <form id="login-form" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="login-email" placeholder="email@example.com" required>
-            </div>
-            <div class="form-group">
-                <label>Mật khẩu</label>
-                <input type="password" id="login-password" placeholder="Nhập mật khẩu" required>
-            </div>
-            <div class="form-group" style="display:flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                <label style="margin:0;">Đăng nhập với tư cách:</label>
-                <label style="margin:0; font-weight:normal; cursor:pointer;"><input type="radio" name="login-role" value="student" checked> Học viên</label>
-                <label style="margin:0; font-weight:normal; cursor:pointer;"><input type="radio" name="login-role" value="tutor"> Gia sư</label>
-            </div>
-            <div class="error" id="login-error"></div>
-            <button class="btn-submit" type="submit">Đăng nhập</button>
-        </form>
+                    <!-- Login Form -->
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Email</label>
+                            <input type="email" class="form-control form-control-lg bg-light" id="login-email" placeholder="email@example.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Mật khẩu</label>
+                            <input type="password" class="form-control form-control-lg bg-light" id="login-password" placeholder="Nhập mật khẩu" required>
+                        </div>
+                        <div class="mb-4 bg-light p-3 rounded-3 border">
+                            <label class="form-label fw-bold text-dark d-block mb-2">Đăng nhập với tư cách:</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="login-role" id="role-student-login" value="student" checked>
+                                    <label class="form-check-label" for="role-student-login">Học viên</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="login-role" id="role-tutor-login" value="tutor">
+                                    <label class="form-check-label" for="role-tutor-login">Gia sư</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-danger py-2" id="login-error" style="display:none;"></div>
+                        <button class="btn btn-primary-custom w-100 py-3 rounded-3 fs-5" type="submit">Đăng nhập</button>
+                    </form>
 
-        <!-- Register Form -->
-        <form id="register-form" onsubmit="handleRegister(event)">
-            <div class="form-group">
-                <label>Họ và tên</label>
-                <input type="text" id="reg-name" placeholder="Nguyễn Văn A" required>
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="reg-email" placeholder="email@example.com" required>
-            </div>
-            <div class="form-group">
-                <label>Mật khẩu</label>
-                <input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" required>
-            </div>
-            <div class="form-group" style="display:flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
-                <label style="margin:0;">Bạn là:</label>
-                <label style="margin:0; font-weight:normal; cursor:pointer;"><input type="radio" name="reg-role" value="student" onchange="toggleTutorFields()" checked> Học viên</label>
-                <label style="margin:0; font-weight:normal; cursor:pointer;"><input type="radio" name="reg-role" value="tutor" onchange="toggleTutorFields()"> Gia sư</label>
-            </div>
+                    <!-- Register Form -->
+                    <form id="register-form" style="display:none;" onsubmit="handleRegister(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Họ và tên</label>
+                            <input type="text" class="form-control form-control-lg bg-light" id="reg-name" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark">Email</label>
+                            <input type="email" class="form-control form-control-lg bg-light" id="reg-email" placeholder="email@example.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Mật khẩu</label>
+                            <input type="password" class="form-control form-control-lg bg-light" id="reg-password" placeholder="Tối thiểu 6 ký tự" required>
+                        </div>
+                        <div class="mb-4 bg-light p-3 rounded-3 border">
+                            <label class="form-label fw-bold text-dark d-block mb-2">Bạn là:</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="reg-role" id="role-student-reg" value="student" onchange="toggleTutorFields()" checked>
+                                    <label class="form-check-label" for="role-student-reg">Học viên</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="reg-role" id="role-tutor-reg" value="tutor" onchange="toggleTutorFields()">
+                                    <label class="form-check-label" for="role-tutor-reg">Gia sư</label>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Các trường riêng cho Gia sư -->
-            <div id="tutor-extra-fields" style="display:none; padding: 1rem; background: #f8fafc; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
-                <div class="form-group">
-                    <label>Bằng HSK hiện có của bạn (Tối thiểu HSK 5):</label>
-                    <select id="reg-hsk-level">
-                        <option value="5">HSK 5</option>
-                        <option value="6">HSK 6</option>
-                    </select>
+                        <!-- Các trường riêng cho Gia sư -->
+                        <div id="tutor-extra-fields" style="display:none;" class="mb-4 p-3 bg-white border border-info rounded-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark">Bằng HSK hiện có của bạn (Tối thiểu HSK 5):</label>
+                                <select class="form-select form-select-lg bg-light" id="reg-hsk-level">
+                                    <option value="5">HSK 5</option>
+                                    <option value="6">HSK 6</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-bold text-dark">Chứng chỉ khác (Tùy chọn):</label>
+                                <input type="text" class="form-control form-control-lg bg-light" id="reg-specialization" placeholder="TOCFL, Chứng chỉ Sư phạm...">
+                            </div>
+                        </div>
+                        <div class="alert alert-danger py-2" id="register-error" style="display:none;"></div>
+                        <div class="alert alert-success py-2" id="register-success" style="display:none;"></div>
+                        <button class="btn btn-primary-custom w-100 py-3 rounded-3 fs-5" type="submit">Tạo tài khoản</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <a href="../../index.html" class="text-decoration-none fw-medium text-primary-custom">← Quay về trang chủ</a>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Chứng chỉ khác (Tùy chọn):</label>
-                    <input type="text" id="reg-specialization" placeholder="TOCFL, Chứng chỉ Sư phạm...">
-                </div>
             </div>
-            <div class="error" id="register-error"></div>
-            <div class="success" id="register-success"></div>
-            <button class="btn-submit" type="submit">Tạo tài khoản</button>
-        </form>
-
-        <div class="back-link">
-            <a href="../../index.html">← Quay về trang chủ</a>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/api.js"></script>
     <script>
         // Toggle form đăng ký
@@ -158,9 +157,6 @@
                     name: res.name,
                     role: res.role
                 }));
-                // Login.html nằm tại frontend/pages/ nên:
-                // - tutor → frontend/pages/tutor_index.html (cùng thư mục)
-                // - student → root index.html cần ../../ để lên 2 cấp
                 if (res.role === 'tutor') {
                     window.location.href = '/frontend/pages/tutor_index.html';
                 } else {
@@ -202,7 +198,6 @@
             }
         }
 
-        // Tự động chuyển tab nếu URL có ?tab=register
         if (new URLSearchParams(window.location.search).get('tab') === 'register') switchTab('register');
     </script>
 </body>
