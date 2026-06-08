@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Lớp học - Lanying HSK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
+    <style>
+        body { background: #f8fafc; }
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        .stat-card h3 { margin: 0; font-size: 1rem; opacity: 0.9; }
+        .stat-card p { font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0 0; }
+        
+        .booking-list { list-style: none; padding: 0; }
+        .booking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+        .booking-info h4 { margin: 0 0 0.5rem; color: #1e293b; font-size: 1.1rem; }
+        .booking-info p { margin: 0; color: #64748b; font-size: 0.9rem; }
+        .booking-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef08a; color: #854d0e; }
+        .status-accepted { background: #bbf7d0; color: #166534; }
+        .status-rejected { background: #fecaca; color: #991b1b; }
+
+        .btn-action { border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:600; cursor:pointer; color:white; margin-left: 0.5rem; transition: all 0.2s; }
+        .btn-accept { background: #16a34a; }
+        .btn-accept:hover { background: #15803d; }
+        .btn-reject { background: #dc2626; }
+        .btn-reject:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon" style="font-size:1.8rem;font-weight:800;color:#0ea5e9;font-family:serif;">&#20013;</span>
+            <h1>Lanying Gia sư</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="tutor_index.html">Quản lý lớp</a></li>
+            <li><a href="tutor_profile.html">Hồ sơ cá nhân</a></li>
+        </ul>
+        <div class="nav-actions" id="navActions">
+            <!-- Render via JS -->
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dash-header">
+            <div>
+                <h2 style="margin:0; color:#0f172a; font-size:2rem;">Quản lý Lớp học</h2>
+                <p style="margin:0.5rem 0 0; color:#64748b;" id="greeting-text">Đang tải dữ liệu...</p>
+            </div>
+            <div id="hsk-badge" style="background:#0ea5e9; color:white; padding:0.5rem 1rem; border-radius:50px; font-weight:700;">
+                HSK -
+            </div>
+        </div>
+
+        <div class="stat-cards">
+            <div class="stat-card">
+                <h3>Yêu cầu chờ duyệt</h3>
+                <p id="stat-pending">0</p>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <h3>Học sinh đang dạy</h3>
+                <p id="stat-accepted">0</p>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom:1rem; color:#1e293b;">Danh sách Yêu cầu & Học viên</h3>
+        <ul class="booking-list" id="booking-list">
+            <div style="text-align:center; padding:2rem; color:#64748b;">⏳ Đang tải danh sách...</div>
+        </ul>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('lanying_token');
+            localStorage.removeItem('lanying_user');
+            window.location.href = 'login.html';
+        }
+
+        async function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            const token = localStorage.getItem('lanying_token');
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Bước 1: Dùng localStorage hiện giao diện ngay
+            if (user.role !== 'tutor') {
+                window.location.replace('../../index.html');
+                return;
+            }
+            
+            document.getElementById('navActions').innerHTML = `
+                <span style="font-weight:600; color:var(--primary); margin-right: 1rem;">Xin chào Giáo viên <b>${user.name}</b></span>
+                <button class="btn-outline" onclick="logout()">Đăng xuất</button>
+            `;
+            document.getElementById('greeting-text').textContent = `Chào mừng Giáo viên ${user.name} quản lý lớp học!`;
+
+            // Bước 2: Xác minh role ngay sau đó (ngầm)
+            try {
+                const dashData = await AuthAPI.getDashboard();
+                if (dashData.role !== 'tutor') {
+                    user.role = 'student';
+                    localStorage.setItem('lanying_user', JSON.stringify(user));
+                    window.location.replace('../../index.html');
+                } else {
+                    user.name = dashData.name;
+                    user.role = 'tutor';
+                    localStorage.setItem('lanying_user', JSON.stringify(user));
+                    document.getElementById('navActions').innerHTML = `
+                        <span style="font-weight:600; color:var(--primary); margin-right: 1rem;">Xin chào Giáo viên <b>${dashData.name}</b></span>
+                        <button class="btn-outline" onclick="logout()">Đăng xuất</button>
+                    `;
+                    document.getElementById('greeting-text').textContent = `Chào mừng Giáo viên ${dashData.name} quản lý lớp học!`;
+                }
+            } catch(e) {
+                console.log('Could not verify role:', e.message);
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const data = await AuthAPI.getDashboard();
+                document.getElementById('hsk-badge').textContent = `Cấp độ hiện tại: HSK ${data.hsk_level}`;
+
+                const bookings = data.bookings;
+                const pending = bookings.filter(b => b.status === 'pending').length;
+                const accepted = bookings.filter(b => b.status === 'accepted').length;
+
+                document.getElementById('stat-pending').textContent = pending;
+                document.getElementById('stat-accepted').textContent = accepted;
+
+                const listEl = document.getElementById('booking-list');
+                if (bookings.length === 0) {
+                    listEl.innerHTML = `<div style="text-align:center; padding:2rem; color:#64748b;">Chưa có yêu cầu nào.</div>`;
+                    return;
+                }
+
+                listEl.innerHTML = bookings.map(b => {
+                    const date = new Date(b.created_at).toLocaleString('vi-VN');
+                    let statusClass = b.status === 'pending' ? 'status-pending' : (b.status === 'accepted' ? 'status-accepted' : 'status-rejected');
+                    
+                    let actionBtns = '';
+                    if (b.status === 'pending') {
+                        actionBtns = `
+                            <div>
+                                <button class="btn-action btn-accept" onclick="updateBooking(${b.id}, 'accepted')">Duyệt</button>
+                                <button class="btn-action btn-reject" onclick="updateBooking(${b.id}, 'rejected')">Từ chối</button>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <li class="booking-item">
+                            <div class="booking-info">
+                                <h4>Học viên: ${b.student_name}</h4>
+                                <p>Ngày gửi: ${date}</p>
+                                <p style="margin-top:0.5rem;"><span class="booking-status ${statusClass}">Trạng thái: ${b.status}</span></p>
+                            </div>
+                            ${actionBtns}
+                        </li>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                showToast(`Lỗi tải dữ liệu: ${err.message}`);
+            }
+        }
+
+        async function updateBooking(bookingId, status) {
+            try {
+                await TutorAPI.updateBookingStatus(bookingId, status);
+                showToast(`Đã ${status === 'accepted' ? 'duyệt' : 'từ chối'} lớp thành công!`);
+                loadDashboard();
+            } catch (err) {
+                showToast(`Lỗi: ${err.message}`);
+            }
+        }
+
+        checkAuth();
+        loadDashboard();
+    </script>
+</body>
+</html>

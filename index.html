@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanying HSK - Nền tảng gia sư tiếng Trung thông minh</title>
+    <meta name="description" content="Tìm gia sư tiếng Trung phù hợp nhất với bạn bằng AI Cosine Similarity và Chatbot RAG">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Extra styles for dynamic elements */
+        .nav-user { display:flex; align-items:center; gap:1rem; }
+        .nav-username { font-weight:600; color:var(--primary); }
+        .tutor-grid-dynamic { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2rem; }
+        .loading-spinner { text-align:center; padding:3rem; color:var(--gray); font-size:1.1rem; }
+        .btn-secondary { background:#6366f1; color:white; border:none; padding:0.8rem 2rem; border-radius:8px; font-size:1.1rem; font-weight:600; cursor:pointer; transition:all 0.3s; }
+        .btn-secondary:hover { background:#4f46e5; transform:translateY(-2px); }
+
+        /* Chatbot styles */
+        .chatbot-widget {
+            position:fixed; bottom:30px; right:30px;
+            background:var(--primary); color:white;
+            padding:1rem 1.5rem; border-radius:50px;
+            cursor:pointer; box-shadow:0 4px 20px rgba(14,165,233,0.4);
+            font-weight:700; z-index:1000; font-size:1rem;
+            transition:all 0.3s; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { box-shadow:0 4px 20px rgba(14,165,233,0.4); }
+            50% { box-shadow:0 4px 30px rgba(14,165,233,0.7); }
+        }
+        .chatbot-widget:hover { transform:scale(1.05); }
+        .chat-window {
+            position:fixed; bottom:90px; right:30px;
+            width:360px; background:white; border-radius:16px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.15);
+            display:none; flex-direction:column; z-index:1000;
+            overflow:hidden; border:1px solid #e2e8f0;
+        }
+        .chat-header {
+            background:linear-gradient(135deg,var(--primary),#6366f1);
+            color:white; padding:1rem 1.5rem;
+            display:flex; justify-content:space-between; align-items:center;
+        }
+        .chat-header h4 { font-size:1rem; }
+        .chat-header small { opacity:0.8; font-size:0.75rem; }
+        .close-chat { background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; }
+        .chat-body {
+            padding:1rem; height:300px; overflow-y:auto;
+            background:#f8fafc; display:flex; flex-direction:column; gap:0.8rem;
+        }
+        .chat-msg { max-width:80%; padding:0.7rem 1rem; border-radius:12px; font-size:0.9rem; line-height:1.5; }
+        .chat-msg.ai { background:#e2e8f0; align-self:flex-start; border-radius:4px 12px 12px 12px; }
+        .chat-msg.user { background:var(--primary); color:white; align-self:flex-end; border-radius:12px 12px 4px 12px; }
+        .chat-msg.typing { color:var(--gray); font-style:italic; }
+        .chat-input-row { display:flex; padding:0.8rem; gap:0.5rem; border-top:1px solid #e2e8f0; background:white; }
+        .chat-input-row input { flex:1; padding:0.7rem 1rem; border:2px solid #e2e8f0; border-radius:8px; font-family:'Inter',sans-serif; font-size:0.9rem; }
+        .chat-input-row input:focus { outline:none; border-color:var(--primary); }
+        .chat-input-row button { background:var(--primary); color:white; border:none; padding:0.7rem 1.2rem; border-radius:8px; cursor:pointer; font-weight:600; }
+
+        /* Hero stats */
+        .hero-stats { display:flex; gap:2rem; justify-content:center; margin-top:2rem; flex-wrap:wrap; }
+        .stat { text-align:center; }
+        .stat-num { font-size:2rem; font-weight:800; color:var(--primary); }
+        .stat-label { font-size:0.85rem; color:var(--gray); }
+
+        /* Toast notification */
+        .toast { position:fixed; top:80px; right:20px; background:#0f172a; color:white; padding:1rem 1.5rem; border-radius:10px; z-index:9999; display:none; font-size:0.9rem; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal Dashboard -->
+    <div id="dashboardModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div style="background:white; padding:2rem; border-radius:12px; width:90%; max-width:600px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid #e2e8f0; padding-bottom:1rem;">
+                <h3 id="dashTitle" style="color:var(--primary); font-size:1.5rem; margin:0;">Bảng điều khiển</h3>
+                <button onclick="closeDashboard()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">✕</button>
+            </div>
+            <div id="dashContent">
+                <div class="loading-spinner">⏳ Đang tải dữ liệu...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon" style="font-size:1.8rem;font-weight:800;color:#0ea5e9;font-family:serif;">&#20013;</span>
+            <h1>Lanying HSK</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Trang chủ</a></li>
+            <li><a href="#tutors">Gia sư</a></li>
+            <li id="nav-survey-link"><a href="frontend/pages/survey.html">Khảo sát AI</a></li>
+        </ul>
+        <div class="nav-actions" id="navActions">
+            <button class="btn-outline" onclick="window.location='frontend/pages/login.html'">Đăng nhập</button>
+            <button class="btn-primary" onclick="window.location='frontend/pages/login.html?tab=register'">Đăng ký miễn phí</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="badge">✨ AI Powered by Cosine Similarity & RAG</div>
+            <h2>Tìm Gia Sư Tiếng Trung<br>Hoàn Hảo Chỉ Trong 30 Giây</h2>
+            <p>Hệ thống AI phân tích nhu cầu của bạn và đề xuất gia sư phù hợp nhất. Hỗ trợ lộ trình học từ HSK 1 đến HSK 6.</p>
+            <div class="hero-buttons">
+                <button id="hero-survey-btn" class="btn-primary btn-large" onclick="window.location='frontend/pages/survey.html'">🎯 Khảo sát lộ trình ngay</button>
+                <button class="btn-secondary btn-large" onclick="document.getElementById('tutors').scrollIntoView({behavior:'smooth'})">Xem gia sư</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Gia sư chất lượng</div></div>
+                <div class="stat"><div class="stat-num">1000+</div><div class="stat-label">Học viên</div></div>
+                <div class="stat"><div class="stat-num">HSK 1-6</div><div class="stat-label">Đầy đủ cấp độ</div></div>
+                <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">AI hỗ trợ</div></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- How it works -->
+    <section class="how-it-works">
+        <h3 class="section-title">Quy Trình Học Tập Thông Minh</h3>
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-icon">📝</div>
+                <h4>1. Khảo sát đầu vào</h4>
+                <p>Cung cấp mục tiêu HSK, thời gian và trình độ hiện tại của bạn trong 1 phút.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">🤖</div>
+                <h4>2. AI Phân Tích</h4>
+                <p>Thuật toán <strong>Cosine Similarity</strong> tính toán và tìm gia sư khớp nhất với hồ sơ của bạn.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">🎯</div>
+                <h4>3. Nhận Gợi Ý</h4>
+                <p>Xem top 3 gia sư phù hợp kèm điểm tương thích và đặt lịch học ngay.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutors Section - Load từ API -->
+    <section id="tutors" class="tutor-section">
+        <h3 class="section-title">Gia Sư Nổi Bật</h3>
+        <div id="tutorGrid" class="tutor-grid-dynamic">
+            <div class="loading-spinner">⏳ Đang tải danh sách gia sư từ hệ thống...</div>
+        </div>
+    </section>
+
+    <!-- Floating Chatbot -->
+    <div class="chatbot-widget" onclick="toggleChat()">💬 Hỏi AI tư vấn</div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div>
+                <h4>Trợ lý AI Lanying HSK</h4>
+                <small>Hỏi về ngữ pháp HSK, lộ trình học...</small>
+            </div>
+            <button class="close-chat" onclick="toggleChat()">✕</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg ai">Xin chào! Tôi là trợ lý AI của Lanying HSK. Bạn muốn hỏi về ngữ pháp HSK hay cần tư vấn lộ trình học?</div>
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Hỏi về ngữ pháp HSK..." onkeypress="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()">Gửi</button>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000';
+
+        // ---- Navbar: Kiểm tra đăng nhập ----
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            const token = localStorage.getItem('lanying_token');
+            
+            if (!user || !token) return; // Chưa đăng nhập
+
+            if (user.role === 'tutor') {
+                // Giáo viên không được vào trang học sinh
+                window.location.href = '/frontend/pages/tutor_index.html';
+                return;
+            }
+
+            // Hiện giao diện Học sinh
+            document.getElementById('navActions').innerHTML = `
+                <button class="btn-outline" style="border:none; color:var(--primary); font-weight:600; text-decoration:underline;" onclick="openDashboard()">Xin chào Học sinh <b>${user.name}</b></button>
+                <button class="btn-outline" onclick="logout()">Đăng xuất</button>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('lanying_token');
+            localStorage.removeItem('lanying_user');
+            location.reload();
+        }
+
+        function showToast(msg, duration=3000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', duration);
+        }
+
+        // ---- Load Tutors từ API ----
+        async function loadTutors() {
+            try {
+                const res = await fetch(`${API}/api/tutors/`);
+                const tutors = await res.json();
+                const grid = document.getElementById('tutorGrid');
+
+                if (!tutors.length) {
+                    grid.innerHTML = '<p style="text-align:center;color:#64748b">Chưa có gia sư nào.</p>';
+                    return;
+                }
+
+                grid.innerHTML = tutors.map(t => `
+                    <div class="tutor-card">
+                        <div class="tutor-header">
+                            <div class="tutor-avatar">${t.name.charAt(0)}</div>
+                            <div class="tutor-info">
+                                <h4>${t.name}</h4>
+                                <span class="tutor-level" style="font-size:0.85rem;color:#0ea5e9;">Đạt HSK ${t.hsk_level} | Dạy HSK ${t.teaching_levels} | ${t.specialization || ''}</span>
+                            </div>
+                        </div>
+                        <p style="color:#64748b;font-size:0.9rem;margin-bottom:1rem">${t.bio || ''}</p>
+                        <div class="tutor-tags">
+                            <span class="tag">Dạy HSK ${t.teaching_levels}</span>
+                            <span class="tag">${t.specialization || ''}</span>
+                        </div>
+                        <div class="tutor-footer">
+                            <span class="price">${Number(t.hourly_rate || 0).toLocaleString('vi-VN')}đ/giờ</span>
+                            <button class="btn-primary btn-small" onclick="bookTutor(${t.id},'${t.name}')">Đặt lịch</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                document.getElementById('tutorGrid').innerHTML = `
+                    <div style="text-align:center;color:#ef4444;padding:2rem">
+                        Không thể tải dữ liệu. Backend đang chạy không? <br>
+                        <small>Lỗi: ${e.message}</small>
+                    </div>`;
+            }
+        }
+
+        async function bookTutor(id, name) {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            if (!user) {
+                showToast('Vui lòng đăng nhập để đặt lịch!');
+                setTimeout(() => window.location='frontend/pages/login.html', 1500);
+                return;
+            }
+            if (user.role === 'tutor') {
+                showToast('Tài khoản Gia sư không thể đặt lịch học!');
+                return;
+            }
+            try {
+                await TutorAPI.book(id, "Xin chào gia sư!");
+                showToast(`Đã gửi yêu cầu đặt lịch với gia sư ${name} thành công!`);
+            } catch (err) {
+                showToast(`Lỗi: ${err.message}`);
+            }
+        }
+
+        // ---- Dashboard Modal ----
+        async function openDashboard() {
+            document.getElementById('dashboardModal').style.display = 'flex';
+            document.getElementById('dashContent').innerHTML = '<div class="loading-spinner">⏳ Đang tải dữ liệu...</div>';
+            try {
+                const data = await AuthAPI.getDashboard();
+                if (data.role === 'tutor') {
+                    document.getElementById('dashTitle').textContent = `Thống kê Gia sư: ${data.name}`;
+                    let html = `
+                        <div style="background:#f8fafc; padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                            <p><strong>HSK hiện tại:</strong> Cấp ${data.hsk_level}</p>
+                            <p><strong>Các cấp đang dạy:</strong> HSK ${data.teaching_levels}</p>
+                        </div>
+                        <h4 style="margin-bottom:0.5rem; color:#334155;">Danh sách học sinh đặt lịch:</h4>
+                    `;
+                    if (data.bookings.length === 0) {
+                        html += `<p style="color:#64748b">Chưa có học sinh nào đặt lịch.</p>`;
+                    } else {
+                        html += `<ul style="list-style:none; padding:0;">`;
+                        data.bookings.forEach(b => {
+                            const date = new Date(b.created_at).toLocaleString('vi-VN');
+                            let actionBtns = '';
+                            if (b.status === 'pending') {
+                                actionBtns = `
+                                    <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+                                        <button onclick="updateBooking(${b.id}, 'accepted')" style="background:#16a34a; color:white; border:none; padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer;">Duyệt</button>
+                                        <button onclick="updateBooking(${b.id}, 'rejected')" style="background:#dc2626; color:white; border:none; padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer;">Từ chối</button>
+                                    </div>
+                                `;
+                            }
+                            html += `<li style="padding:1rem; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:0.5rem;">
+                                <strong>Học viên:</strong> ${b.student_name} <br>
+                                <small style="color:#64748b">Ngày đặt: ${date} | Trạng thái: <b>${b.status}</b></small>
+                                ${actionBtns}
+                            </li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    document.getElementById('dashContent').innerHTML = html;
+                } else {
+                    document.getElementById('dashTitle').textContent = `Lịch sử học tập: ${data.name}`;
+                    let html = `<h4 style="margin-bottom:0.5rem; color:#334155;">Gia sư bạn đã đăng ký:</h4>`;
+                    if (data.bookings.length === 0) {
+                        html += `<p style="color:#64748b">Bạn chưa đặt lịch với gia sư nào.</p>`;
+                    } else {
+                        html += `<ul style="list-style:none; padding:0;">`;
+                        data.bookings.forEach(b => {
+                            const date = new Date(b.created_at).toLocaleString('vi-VN');
+                            html += `<li style="padding:1rem; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:0.5rem;">
+                                <strong>Gia sư:</strong> ${b.tutor_name} <br>
+                                <small style="color:#64748b">Ngày đặt: ${date} | Trạng thái: ${b.status}</small>
+                            </li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    document.getElementById('dashContent').innerHTML = html;
+                }
+            } catch (err) {
+                document.getElementById('dashContent').innerHTML = `<p style="color:#ef4444">Lỗi tải dữ liệu: ${err.message}</p>`;
+            }
+        }
+
+        function closeDashboard() {
+            document.getElementById('dashboardModal').style.display = 'none';
+        }
+
+        async function updateBooking(bookingId, status) {
+            try {
+                await TutorAPI.updateBookingStatus(bookingId, status);
+                showToast(`Đã ${status === 'accepted' ? 'duyệt' : 'từ chối'} học viên thành công!`);
+                openDashboard(); // Reload data
+            } catch (err) {
+                showToast(`Lỗi: ${err.message}`);
+            }
+        }
+
+        // ---- Chatbot ----
+        function toggleChat() {
+            const w = document.getElementById('chatWindow');
+            w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const body = document.getElementById('chatBody');
+            body.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+            body.innerHTML += `<div class="chat-msg ai typing" id="typing">Đang trả lời...</div>`;
+            body.scrollTop = body.scrollHeight;
+            input.value = '';
+
+            try {
+                const res = await fetch(`${API}/api/chat/`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({message: msg})
+                });
+                const data = await res.json();
+                document.getElementById('typing').outerHTML = `<div class="chat-msg ai">${data.reply}</div>`;
+            } catch(e) {
+                document.getElementById('typing').outerHTML = `<div class="chat-msg ai">Xin lỗi, chatbot đang gặp lỗi kết nối.</div>`;
+            }
+            body.scrollTop = body.scrollHeight;
+        }
+
+        // Khởi tạo
+        checkAuth();
+        loadTutors();
+    </script>
+</body>
+</html>

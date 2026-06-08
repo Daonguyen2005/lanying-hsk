@@ -1,0 +1,88 @@
+# TÀI LIỆU NGỮ PHÁP HSK - KNOWLEDGE BASE CHO CHATBOT RAG
+# Lanying HSK Platform
+
+## HSK 1 - Cấu trúc cơ bản
+
+### 1. Câu khẳng định: Chủ ngữ + Vị ngữ + Tân ngữ
+Ví dụ: 我 是 学生 (Wǒ shì xuésheng) - Tôi là học sinh.
+Ví dụ: 她 喝 水 (Tā hē shuǐ) - Cô ấy uống nước.
+
+### 2. Câu phủ định dùng 不 (bù)
+Ví dụ: 我 不 是 老师 (Wǒ bù shì lǎoshī) - Tôi không phải giáo viên.
+
+### 3. Câu hỏi với 吗 (ma)
+Thêm 吗 vào cuối câu khẳng định để tạo câu hỏi.
+Ví dụ: 你 是 学生 吗？(Nǐ shì xuésheng ma?) - Bạn là học sinh không?
+
+### 4. Câu hỏi với từ để hỏi 什么 (shénme - cái gì), 哪 (nǎ - nào)
+Ví dụ: 这 是 什么？(Zhè shì shénme?) - Đây là cái gì?
+
+---
+
+## HSK 2 - Cấu trúc trung cấp sơ
+
+### 5. Trạng từ 很 (hěn - rất)
+Trong câu với tính từ vị ngữ, thường thêm 很 vào trước tính từ.
+Ví dụ: 她 很 漂亮 (Tā hěn piàoliang) - Cô ấy rất đẹp.
+
+### 6. Giới từ 在 (zài - ở, đang ở)
+Ví dụ: 我 在 学校 (Wǒ zài xuéxiào) - Tôi ở trường học.
+Ví dụ: 他 在 看 书 (Tā zài kàn shū) - Anh ấy đang đọc sách.
+
+### 7. Trợ từ 了 (le) - diễn tả hành động đã hoàn thành
+Ví dụ: 我 吃 了 (Wǒ chī le) - Tôi đã ăn rồi.
+Ví dụ: 她 来 了 (Tā lái le) - Cô ấy đã đến.
+
+### 8. So sánh với 比 (bǐ - hơn)
+Cấu trúc: A + 比 + B + Tính từ
+Ví dụ: 他 比 我 高 (Tā bǐ wǒ gāo) - Anh ấy cao hơn tôi.
+
+---
+
+## HSK 3 - Cấu trúc trung cấp
+
+### 9. Kết quả bổ ngữ (结果补语)
+Cấu trúc: Động từ + Kết quả
+Ví dụ: 做 完 (zuò wán) - làm xong
+Ví dụ: 听 懂 (tīng dǒng) - nghe hiểu
+Ví dụ: 我 做 完 作业 了 (Wǒ zuò wán zuòyè le) - Tôi làm xong bài tập rồi.
+
+### 10. Liên từ 因为...所以 (yīnwèi...suǒyǐ - vì...nên)
+Ví dụ: 因为 下雨，所以 我 没 去 (Yīnwèi xià yǔ, suǒyǐ wǒ méi qù) - Vì trời mưa nên tôi không đi.
+
+### 11. Cấu trúc 把 (bǎ) - nhấn mạnh tân ngữ
+Cấu trúc: Chủ ngữ + 把 + Tân ngữ + Động từ + Bổ ngữ
+Ví dụ: 我 把 书 放 在 桌子 上 (Wǒ bǎ shū fàng zài zhuōzi shàng) - Tôi để sách lên bàn.
+
+---
+
+## HSK 4 - Từ vựng thương mại cơ bản
+
+### Từ vựng kinh doanh thường gặp:
+- 公司 (gōngsī) - công ty
+- 合同 (hétong) - hợp đồng
+- 谈判 (tánpàn) - đàm phán
+- 客户 (kèhù) - khách hàng
+- 市场 (shìchǎng) - thị trường
+- 价格 (jiàgé) - giá cả
+- 质量 (zhìliàng) - chất lượng
+
+### Cấu trúc lịch sự trong thương mại:
+- 请问... (Qǐngwèn...) - Xin hỏi...
+- 麻烦您... (Máfan nín...) - Xin phiền bạn...
+- 感谢您的... (Gǎnxiè nín de...) - Cảm ơn bạn về...
+
+---
+
+## Thông tin về Lanying HSK Platform
+
+### Các khóa học có trên nền tảng:
+1. **Luyện thi HSK 6 - Cấp tốc**: 3.000.000đ/12 tuần - Gia sư Lý Minh (HSK6)
+2. **Tiếng Trung Thương Mại HSK 4**: 2.000.000đ/8 tuần - Gia sư Trần Phong (HSK5)
+3. **Tiếng Trung Nhập Môn**: 800.000đ/4 tuần - Gia sư Nguyễn Hoa (HSK4)
+
+### Cách đặt lịch học:
+1. Đăng ký tài khoản trên website
+2. Làm bài khảo sát ngắn (3 câu hỏi)
+3. Nhận gợi ý gia sư phù hợp
+4. Chọn gia sư và đặt lịch học

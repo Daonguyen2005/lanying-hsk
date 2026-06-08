@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+
+# Database (dùng file db local thôi, trên Railway dùng db riêng)
+# *.db  <- KHÔNG ignore để Railway có dữ liệu ban đầu
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Word/Excel files
+*.docx
+*.xlsx
+*.csv
