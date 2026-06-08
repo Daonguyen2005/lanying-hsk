@@ -255,45 +255,72 @@
             document.getElementById('survey-content').classList.add('d-none');
             document.getElementById('loading').classList.remove('d-none');
 
-            // Construct bio
-            const profileText = `Học viên muốn: ${answers.q1}. Trình độ: ${answers.q2}. Kỹ năng cần: ${answers.q3}. Hình thức: ${answers.q4}. Kiểu giáo viên: ${answers.q5}.`;
+            // Map UI answers to Backend Schema
+            let mapped_goals = [];
+            if (answers.q1.includes('HSK')) mapped_goals.push('hsk_exam');
+            if (answers.q1.includes('Giao tiếp')) mapped_goals.push('communication');
+            if (answers.q1.includes('Sở thích')) mapped_goals.push('communication');
+
+            let mapped_level = 'beginner';
+            if (answers.q2.includes('HSK 1-2')) mapped_level = 'hsk2';
+            if (answers.q2.includes('HSK 3-4')) mapped_level = 'hsk4';
+
+            let mapped_skills = [];
+            if (answers.q3.includes('Nghe & Nói')) mapped_skills.push('listening_speaking');
+            if (answers.q3.includes('Đọc & Viết')) mapped_skills.push('reading_writing', 'grammar');
+            if (answers.q3.includes('Phát âm')) mapped_skills.push('pronunciation');
+
+            let mapped_modes = [];
+            if (answers.q4.includes('Online')) mapped_modes.push('online');
+            if (answers.q4.includes('offline')) mapped_modes.push('offline');
+
+            const payload = {
+                current_level: mapped_level,
+                goals: mapped_goals,
+                skills: mapped_skills,
+                modes: mapped_modes,
+                age: 'adult'
+            };
+
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            if (user && user.id) {
+                payload.user_id = user.id;
+            }
 
             try {
-                const data = await MatchAPI.findMatches(profileText);
+                const data = await SurveyAPI.submit(payload);
                 
                 document.getElementById('loading').classList.add('d-none');
                 document.getElementById('results').classList.remove('d-none');
                 
-                // Trích xuất phần text phân tích của AI
-                // Nếu backend trả về phân tích riêng, ta dùng nó. Nếu không có, ta hiển thị profile.
-                document.getElementById('analysis-text').textContent = "Dựa trên hồ sơ của bạn, chúng tôi đã tính toán độ tương đồng (Cosine Similarity) với hàng loạt gia sư để đưa ra kết quả này.";
+                document.getElementById('analysis-text').textContent = "Dựa trên hồ sơ của bạn, hệ thống AI đã tính toán độ tương đồng Cosine Similarity để đưa ra kết quả gia sư phù hợp nhất.";
 
                 const container = document.getElementById('matched-tutors');
-                if (data.matches.length === 0) {
+                if (!data.recommendations || data.recommendations.length === 0) {
                     container.innerHTML = `<div class="col-12"><div class="alert alert-info text-center rounded-4 border-0">Chưa tìm thấy gia sư phù hợp hoàn toàn. Bạn có thể xem danh sách ở trang chủ.</div></div>`;
                     return;
                 }
 
-                data.matches.forEach((match, index) => {
+                data.recommendations.forEach((match, index) => {
                     const delayClass = `delay-${(index + 1) * 100}`;
-                    const score = Math.round(match.similarity_score * 100);
+                    const score = match.similarity_score;
                     const card = document.createElement('div');
                     card.className = `col-md-6 animate-fade-up ${delayClass}`;
                     card.innerHTML = `
                         <div class="glass-panel h-100 p-4 border-start border-4 border-primary">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
-                                    <h4 class="fw-bold mb-1">${match.tutor.name}</h4>
-                                    <span class="badge bg-light text-dark border">Phí: ${match.tutor.hourly_rate ? match.tutor.hourly_rate.toLocaleString('vi-VN') + 'đ' : 'Thỏa thuận'}</span>
+                                    <h4 class="fw-bold mb-1">${match.name}</h4>
+                                    <span class="badge bg-light text-dark border">Phí: ${match.hourly_rate ? match.hourly_rate.toLocaleString('vi-VN') + 'đ' : 'Thỏa thuận'}</span>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-gradient-custom rounded-pill fs-6 px-3 py-2 shadow-sm">${score}% Phù hợp</span>
                                 </div>
                             </div>
                             <p class="text-secondary mb-4 small line-clamp-3">
-                                ${match.tutor.bio || 'Chưa có thông tin'}
+                                ${match.bio || 'Chưa có thông tin giới thiệu'}
                             </p>
-                            <button class="btn btn-outline-custom w-100 rounded-pill" onclick="bookTutor(${match.tutor.id})">Chọn Gia Sư Này</button>
+                            <button class="btn btn-outline-custom w-100 rounded-pill" onclick="bookTutor(${match.id})">Chọn Gia Sư Này</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -321,7 +348,7 @@
             }
 
             try {
-                await MatchAPI.bookTutor(tutorId);
+                await TutorAPI.book(tutorId);
                 showToast('Đăng ký lớp thành công! Bạn có thể xem ở Dashboard.');
             } catch (err) {
                 showToast(`Lỗi đặt lịch: ${err.message}`);

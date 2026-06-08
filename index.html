@@ -218,7 +218,7 @@
             }
 
             try {
-                await MatchAPI.bookTutor(tutorId);
+                await TutorAPI.book(tutorId);
                 showToast('Đăng ký lớp thành công! Gia sư sẽ sớm liên hệ với bạn.');
             } catch (err) {
                 showToast(`Lỗi đặt lịch: ${err.message}`);
