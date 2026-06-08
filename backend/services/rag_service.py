@@ -3,9 +3,6 @@ from google.genai import types
 from config import GEMINI_API_KEY
 import os
 
-# Khởi tạo client mới theo SDK google.genai
-client = genai.Client(api_key=GEMINI_API_KEY)
-
 # Tải knowledge base từ file txt
 def load_knowledge_base() -> str:
     kb_path = os.path.join(os.path.dirname(__file__), "..", "..", "database", "knowledge_base", "hsk_grammar.txt")
@@ -34,6 +31,10 @@ Câu hỏi của học viên: {user_question}
 Trả lời bằng tiếng Việt, ngắn gọn, dễ hiểu:"""
 
     try:
+        # Khởi tạo client lazy - chỉ tạo khi cần dùng
+        if not GEMINI_API_KEY:
+            return "Xin chào! Hiện tại hệ thống AI chưa được cấu hình. Vui lòng liên hệ admin."
+        client = genai.Client(api_key=GEMINI_API_KEY)
         response = client.models.generate_content(
             model="gemini-1.5-flash",
             contents=prompt
