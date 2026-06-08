@@ -3,280 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khảo sát lộ trình - Lanying HSK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>Khảo sát trình độ - Lanying HSK</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../style.css">
     <style>
-        body { 
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 100%); 
-            min-height: 100vh; 
+        /* Specific Survey Styles */
+        .survey-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 2rem 0;
+            position: relative;
+            z-index: 1;
         }
-        .survey-container { max-width: 800px; margin: 0 auto; }
-        .step { display: none; }
-        .step.active { display: block; animation: fadeIn 0.4s; }
-        
-        /* Survey Option Buttons */
-        .option-btn {
-            border: 2px solid #dee2e6;
-            color: #495057;
-            background-color: #fff;
-            transition: all 0.2s;
+        .survey-card {
+            width: 100%;
+            max-width: 800px;
         }
-        .option-btn:hover {
+        .survey-option {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .survey-option:hover {
+            transform: translateY(-3px);
+            background: #ffffff;
             border-color: var(--primary);
-            background-color: #f0f9ff;
-            color: var(--primary);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.1);
         }
-        .option-btn.selected {
-            border-color: var(--primary);
-            background-color: #e0f2fe;
-            color: var(--primary);
+        .survey-option.selected {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
             font-weight: 600;
         }
-        .emoji { font-size: 1.5rem; width: 40px; display: inline-block; text-align: center; }
-        
-        .checkbox-indicator { 
-            width: 24px; height: 24px; border: 2px solid #ced4da; 
-            border-radius: 6px; display: inline-block; transition: all 0.2s; 
-            margin-left: auto;
+        .survey-option .radio-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: inline-block;
+            transition: all 0.3s;
         }
-        .option-btn.selected .checkbox-indicator { 
-            background: var(--primary); border-color: var(--primary); position: relative; 
+        .survey-option.selected .radio-circle {
+            border-color: white;
+            background: white;
+            box-shadow: inset 0 0 0 4px var(--primary);
         }
-        .option-btn.selected .checkbox-indicator::after { 
-            content: '✓'; color: white; position: absolute; 
-            top: -3px; left: 4px; font-size: 16px; font-weight: bold; 
-        }
-        
-        .result-card {
-            border-left: 5px solid var(--primary);
-            transition: transform 0.3s;
-        }
-        .result-card:hover { transform: translateY(-3px); }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeUp 0.5s ease-out; }
     </style>
 </head>
 <body>
-    <div class="container survey-container">
-        <div class="text-center mb-5">
-            <div class="badge-custom mb-3 shadow-sm">🤖 AI Powered by Cosine Similarity</div>
-            <h1 class="display-6 fw-bold text-dark">Khảo Sát Lộ Trình Học</h1>
-            <p class="text-muted fs-5">Hoàn thành 5 bước để AI phân tích và đề xuất gia sư hoàn hảo</p>
-        </div>
+    <div class="bg-blobs"></div>
+    <div class="toast-custom" id="toast"></div>
 
-        <div class="progress mb-5" style="height: 10px; border-radius: 10px;" id="progressContainer">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="progressFill" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-
-        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white" id="surveyCard">
-            <!-- Step 1 -->
-            <div class="step active" id="step1">
-                <h2 class="h4 fw-bold mb-1 text-dark">📚 Câu 1: Trình độ tiếng Trung hiện tại của bạn?</h2>
-                <p class="text-muted small mb-4">(Chỉ chọn 1 đáp án)</p>
-                <div class="d-grid gap-3">
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('level','beginner',this)"><span class="emoji">🌱</span>Chưa biết gì, bắt đầu từ con số 0</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('level','hsk1',this)"><span class="emoji">📗</span>HSK 1 - Biết các từ cơ bản nhất</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('level','hsk2',this)"><span class="emoji">📘</span>HSK 2 - Giao tiếp tình huống đơn giản</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('level','hsk3',this)"><span class="emoji">📙</span>HSK 3 - Trình độ Trung cấp</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('level','hsk4',this)"><span class="emoji">📕</span>HSK 4+ - Trình độ Nâng cao</button>
+    <div class="survey-container container">
+        <div class="glass-panel survey-card p-4 p-md-5">
+            <!-- Progress Bar -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-end mb-2">
+                    <span class="text-secondary fw-semibold">Tiến độ khảo sát</span>
+                    <span class="text-gradient fw-bold fs-5" id="progress-text">0%</span>
                 </div>
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                    <a href="../../index.html" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3">← Về trang chủ</a>
-                    <button class="btn btn-primary-custom px-4 py-2 fw-semibold rounded-3 fs-5" onclick="nextStep(2)">Tiếp theo →</button>
+                <div class="progress-glass">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-bar" role="progressbar" style="width: 0%"></div>
                 </div>
             </div>
 
-            <!-- Step 2 -->
-            <div class="step" id="step2">
-                <h2 class="h4 fw-bold mb-1 text-dark">🎯 Câu 2: Mục tiêu học tiếng Trung của bạn là gì?</h2>
-                <p class="text-muted small mb-4">(Có thể chọn nhiều đáp án)</p>
-                <div class="d-grid gap-3">
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('goals','hsk_exam',this)"><span class="emoji">🏆</span>Thi lấy chứng chỉ HSK / TOCFL<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('goals','communication',this)"><span class="emoji">💬</span>Giao tiếp hàng ngày, du lịch, xem phim<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('goals','business',this)"><span class="emoji">💼</span>Tiếng Trung thương mại, xuất nhập khẩu<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('goals','kids',this)"><span class="emoji">🧒</span>Tiếng Trung cho trẻ em<div class="checkbox-indicator"></div></button>
+            <!-- Steps Container -->
+            <div id="survey-content">
+                <!-- Step 1 -->
+                <div class="step active" id="step-1">
+                    <h2 class="fw-bold mb-4">Mục tiêu học tiếng Trung của bạn là gì?</h2>
+                    <div class="survey-option" onclick="selectOption(1, 'Lấy chứng chỉ HSK (Đi du học/Làm việc)')">
+                        <div class="radio-circle"></div> Lấy chứng chỉ HSK (Đi du học/Làm việc)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(1, 'Giao tiếp hàng ngày / Công sở')">
+                        <div class="radio-circle"></div> Giao tiếp hàng ngày / Công sở
+                    </div>
+                    <div class="survey-option" onclick="selectOption(1, 'Sở thích cá nhân (Xem phim, nghe nhạc)')">
+                        <div class="radio-circle"></div> Sở thích cá nhân (Xem phim, nghe nhạc)
+                    </div>
+                    <div class="mt-4 text-end">
+                        <button class="btn btn-primary-custom" onclick="nextStep(1)">Tiếp tục <i class="bi bi-arrow-right"></i></button>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" onclick="nextStep(1)">← Quay lại</button>
-                    <button class="btn btn-primary-custom px-4 py-2 fw-semibold rounded-3 fs-5" onclick="nextStep(3)">Tiếp theo →</button>
+
+                <!-- Step 2 -->
+                <div class="step" id="step-2">
+                    <h2 class="fw-bold mb-4">Trình độ hiện tại của bạn?</h2>
+                    <div class="survey-option" onclick="selectOption(2, 'Chưa biết gì (Người mới bắt đầu)')">
+                        <div class="radio-circle"></div> Chưa biết gì (Người mới bắt đầu)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(2, 'Đã học qua Pinyin, biết chào hỏi cơ bản (HSK 1-2)')">
+                        <div class="radio-circle"></div> Đã học qua Pinyin, biết chào hỏi cơ bản (HSK 1-2)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(2, 'Có thể giao tiếp cơ bản, đọc hiểu đoạn văn ngắn (HSK 3-4)')">
+                        <div class="radio-circle"></div> Có thể giao tiếp cơ bản, đọc hiểu đoạn văn ngắn (HSK 3-4)
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button class="btn btn-outline-custom" onclick="prevStep(2)">Quay lại</button>
+                        <button class="btn btn-primary-custom" onclick="nextStep(2)">Tiếp tục</button>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step" id="step-3">
+                    <h2 class="fw-bold mb-4">Kỹ năng nào bạn muốn tập trung cải thiện nhất?</h2>
+                    <div class="survey-option" onclick="selectOption(3, 'Nghe & Nói (Phản xạ giao tiếp)')">
+                        <div class="radio-circle"></div> Nghe & Nói (Phản xạ giao tiếp)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(3, 'Đọc & Viết (Ngữ pháp, từ vựng thi HSK)')">
+                        <div class="radio-circle"></div> Đọc & Viết (Ngữ pháp, từ vựng thi HSK)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(3, 'Phát âm chuẩn (Chữa ngọng, luyện giọng)')">
+                        <div class="radio-circle"></div> Phát âm chuẩn (Chữa ngọng, luyện giọng)
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button class="btn btn-outline-custom" onclick="prevStep(3)">Quay lại</button>
+                        <button class="btn btn-primary-custom" onclick="nextStep(3)">Tiếp tục</button>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step" id="step-4">
+                    <h2 class="fw-bold mb-4">Bạn thích hình thức học nào?</h2>
+                    <div class="survey-option" onclick="selectOption(4, 'Online 1 kèm 1 (Tương tác cao, sửa lỗi trực tiếp)')">
+                        <div class="radio-circle"></div> Online 1 kèm 1 (Tương tác cao, sửa lỗi trực tiếp)
+                    </div>
+                    <div class="survey-option" onclick="selectOption(4, 'Học offline tại quán cafe / nhà riêng')">
+                        <div class="radio-circle"></div> Học offline tại quán cafe / nhà riêng
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button class="btn btn-outline-custom" onclick="prevStep(4)">Quay lại</button>
+                        <button class="btn btn-primary-custom" onclick="nextStep(4)">Tiếp tục</button>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step" id="step-5">
+                    <h2 class="fw-bold mb-4">Gia sư lý tưởng của bạn?</h2>
+                    <div class="survey-option" onclick="selectOption(5, 'Giáo viên nghiêm khắc, ép tiến độ')">
+                        <div class="radio-circle"></div> Giáo viên nghiêm khắc, ép tiến độ
+                    </div>
+                    <div class="survey-option" onclick="selectOption(5, 'Giáo viên trẻ trung, năng động, gen Z')">
+                        <div class="radio-circle"></div> Giáo viên trẻ trung, năng động, gen Z
+                    </div>
+                    <div class="survey-option" onclick="selectOption(5, 'Người đi làm có kinh nghiệm thực tế')">
+                        <div class="radio-circle"></div> Người đi làm có kinh nghiệm thực tế
+                    </div>
+                    <div class="mt-5 d-flex justify-content-between">
+                        <button class="btn btn-outline-custom" onclick="prevStep(5)">Quay lại</button>
+                        <button class="btn btn-primary-custom px-5 fs-5 shadow-glow" onclick="submitSurvey()">✨ Phân Tích Bằng AI ✨</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Step 3 -->
-            <div class="step" id="step3">
-                <h2 class="h4 fw-bold mb-1 text-dark">💪 Câu 3: Kỹ năng nào bạn muốn gia sư tập trung rèn luyện nhất?</h2>
-                <p class="text-muted small mb-4">(Có thể chọn nhiều đáp án)</p>
-                <div class="d-grid gap-3">
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('skills','listening_speaking',this)"><span class="emoji">🗣️</span>Nghe & Nói (Khẩu ngữ, phản xạ)<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('skills','pronunciation',this)"><span class="emoji">🎵</span>Phát âm chuẩn xác (Thanh điệu, pinyin)<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('skills','reading_writing',this)"><span class="emoji">✍️</span>Đọc hiểu & Viết chữ Hán<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('skills','grammar',this)"><span class="emoji">🧩</span>Ngữ pháp chuyên sâu<div class="checkbox-indicator"></div></button>
+            <!-- Loading State -->
+            <div id="loading" class="text-center py-5 d-none animate-fade-up">
+                <div class="spinner-border text-primary-custom mb-4" style="width: 4rem; height: 4rem;" role="status"></div>
+                <h3 class="fw-bold text-dark">AI đang xử lý...</h3>
+                <p class="text-secondary fs-5">Hệ thống đang đối chiếu dữ liệu để tìm gia sư phù hợp nhất với bạn</p>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="d-none animate-fade-up">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold display-6 mb-3">Kết quả <span class="text-gradient">Phân Tích</span></h2>
+                    <p class="text-secondary fs-5" id="analysis-text"></p>
                 </div>
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" onclick="nextStep(2)">← Quay lại</button>
-                    <button class="btn btn-primary-custom px-4 py-2 fw-semibold rounded-3 fs-5" onclick="nextStep(4)">Tiếp theo →</button>
+                <h4 class="fw-bold mb-4 border-bottom pb-2">Top Gia sư phù hợp (Gợi ý bởi AI)</h4>
+                <div class="row g-4" id="matched-tutors"></div>
+                
+                <div class="text-center mt-5 pt-4">
+                    <a href="../../index.html" class="btn btn-outline-custom btn-lg rounded-pill px-5">Về trang chủ</a>
                 </div>
             </div>
 
-            <!-- Step 4 -->
-            <div class="step" id="step4">
-                <h2 class="h4 fw-bold mb-1 text-dark">⏰ Câu 4: Bạn có thể học theo hình thức nào?</h2>
-                <p class="text-muted small mb-4">(Có thể chọn nhiều đáp án)</p>
-                <div class="d-grid gap-3">
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('modes','online',this)"><span class="emoji">💻</span>Online (Qua Zoom, Google Meet)<div class="checkbox-indicator"></div></button>
-                    <button class="btn option-btn multi-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="toggleMulti('modes','offline',this)"><span class="emoji">🏫</span>Offline (Gặp trực tiếp tại nhà/quán cafe)<div class="checkbox-indicator"></div></button>
-                </div>
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" onclick="nextStep(3)">← Quay lại</button>
-                    <button class="btn btn-primary-custom px-4 py-2 fw-semibold rounded-3 fs-5" onclick="nextStep(5)">Tiếp theo →</button>
-                </div>
-            </div>
-
-            <!-- Step 5 -->
-            <div class="step" id="step5">
-                <h2 class="h4 fw-bold mb-1 text-dark">👤 Câu 5: Bạn thuộc nhóm tuổi nào?</h2>
-                <p class="text-muted small mb-4">(Chỉ chọn 1 đáp án - Giúp chọn gia sư có phong cách sư phạm phù hợp)</p>
-                <div class="d-grid gap-3">
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('age','kids',this)"><span class="emoji">🧸</span>Trẻ em (Dưới 12 tuổi)</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('age','student',this)"><span class="emoji">🎒</span>Học sinh / Sinh viên (12 - 22 tuổi)</button>
-                    <button class="btn option-btn single-select text-start fs-5 p-3 rounded-3 d-flex align-items-center" onclick="selectSingle('age','adult',this)"><span class="emoji">👔</span>Người đi làm (Trên 22 tuổi)</button>
-                </div>
-                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" onclick="nextStep(4)">← Quay lại</button>
-                    <button class="btn btn-primary-custom px-4 py-2 fw-bold rounded-3 fs-5 shadow-sm" onclick="submitSurvey()">🔍 Phân Tích & Tìm Gia Sư</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results -->
-        <div id="results" style="display:none;">
-            <h2 class="text-center mb-5 fw-bold text-dark display-6">✨ Kết Quả AI Đề Xuất</h2>
-            <div id="results-container" class="d-grid gap-4"></div>
-            <div class="text-center mt-5">
-                <button class="btn btn-outline-secondary btn-lg px-5 rounded-pill shadow-sm" onclick="location.reload()">↺ Làm lại khảo sát</button>
-            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/api.js?v=2"></script>
+    <script src="../js/api.js"></script>
     <script>
-        const answers = { level: null, goals: [], skills: [], modes: [], age: null };
+        let currentStep = 1;
+        const totalSteps = 5;
+        const answers = {};
 
-        function selectSingle(key, value, el) {
-            answers[key] = value;
-            el.closest('.d-grid').querySelectorAll('.option-btn.single-select').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
         }
 
-        function toggleMulti(key, value, el) {
-            const arr = answers[key];
-            const idx = arr.indexOf(value);
-            if (idx > -1) {
-                arr.splice(idx, 1);
-                el.classList.remove('selected');
-            } else {
-                arr.push(value);
-                el.classList.add('selected');
+        function updateProgress() {
+            const percent = ((currentStep - 1) / totalSteps) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-text').textContent = Math.round(percent) + '%';
+        }
+
+        function selectOption(step, value) {
+            answers[`q${step}`] = value;
+            const options = document.querySelectorAll(`#step-${step} .survey-option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        function nextStep(step) {
+            if (!answers[`q${step}`]) {
+                showToast("Vui lòng chọn 1 phương án!");
+                return;
             }
+            document.getElementById(`step-${step}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            updateProgress();
         }
 
-        function nextStep(num) {
-            const currentStep = num - 1;
-            if (currentStep === 1 && !answers.level) { alert('Vui lòng chọn trình độ hiện tại của bạn!'); return; }
-            if (currentStep === 2 && answers.goals.length === 0) { alert('Vui lòng chọn ít nhất một mục tiêu học tập!'); return; }
-            if (currentStep === 3 && answers.skills.length === 0) { alert('Vui lòng chọn ít nhất một kỹ năng!'); return; }
-            if (currentStep === 4 && answers.modes.length === 0) { alert('Vui lòng chọn ít nhất một hình thức học!'); return; }
-
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById(`step${num}`).classList.add('active');
-            document.getElementById('progressFill').style.width = `${num * 20}%`;
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function prevStep(step) {
+            document.getElementById(`step-${step}`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            updateProgress();
         }
 
         async function submitSurvey() {
-            if (!answers.level || answers.goals.length===0 || answers.skills.length===0 || answers.modes.length===0 || !answers.age) {
-                alert('Vui lòng chọn ít nhất 1 đáp án cho tất cả các câu hỏi!');
+            if (!answers[`q5`]) {
+                showToast("Vui lòng hoàn thành câu cuối!");
                 return;
             }
-
-            document.getElementById('surveyCard').innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
-                    <h3 class="mt-4 text-primary-custom fw-bold">🤖 AI đang xử lý...</h3>
-                    <p class="text-muted">Đang đối chiếu vector và tính toán Cosine Similarity...</p>
-                </div>
-            `;
             
-            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').textContent = '100%';
+            document.getElementById('survey-content').classList.add('d-none');
+            document.getElementById('loading').classList.remove('d-none');
+
+            // Construct bio
+            const profileText = `Học viên muốn: ${answers.q1}. Trình độ: ${answers.q2}. Kỹ năng cần: ${answers.q3}. Hình thức: ${answers.q4}. Kiểu giáo viên: ${answers.q5}.`;
+
             try {
-                const res = await SurveyAPI.submit({
-                    current_level: answers.level,
-                    goals: answers.goals,
-                    skills: answers.skills,
-                    modes: answers.modes,
-                    age: answers.age,
-                    user_id: user?.id || null
+                const data = await MatchAPI.findMatches(profileText);
+                
+                document.getElementById('loading').classList.add('d-none');
+                document.getElementById('results').classList.remove('d-none');
+                
+                // Trích xuất phần text phân tích của AI
+                // Nếu backend trả về phân tích riêng, ta dùng nó. Nếu không có, ta hiển thị profile.
+                document.getElementById('analysis-text').textContent = "Dựa trên hồ sơ của bạn, chúng tôi đã tính toán độ tương đồng (Cosine Similarity) với hàng loạt gia sư để đưa ra kết quả này.";
+
+                const container = document.getElementById('matched-tutors');
+                if (data.matches.length === 0) {
+                    container.innerHTML = `<div class="col-12"><div class="alert alert-info text-center rounded-4 border-0">Chưa tìm thấy gia sư phù hợp hoàn toàn. Bạn có thể xem danh sách ở trang chủ.</div></div>`;
+                    return;
+                }
+
+                data.matches.forEach((match, index) => {
+                    const delayClass = `delay-${(index + 1) * 100}`;
+                    const score = Math.round(match.similarity_score * 100);
+                    const card = document.createElement('div');
+                    card.className = `col-md-6 animate-fade-up ${delayClass}`;
+                    card.innerHTML = `
+                        <div class="glass-panel h-100 p-4 border-start border-4 border-primary">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h4 class="fw-bold mb-1">${match.tutor.name}</h4>
+                                    <span class="badge bg-light text-dark border">Phí: ${match.tutor.hourly_rate ? match.tutor.hourly_rate.toLocaleString('vi-VN') + 'đ' : 'Thỏa thuận'}</span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-gradient-custom rounded-pill fs-6 px-3 py-2 shadow-sm">${score}% Phù hợp</span>
+                                </div>
+                            </div>
+                            <p class="text-secondary mb-4 small line-clamp-3">
+                                ${match.tutor.bio || 'Chưa có thông tin'}
+                            </p>
+                            <button class="btn btn-outline-custom w-100 rounded-pill" onclick="bookTutor(${match.tutor.id})">Chọn Gia Sư Này</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
-                showResults(res.recommendations);
-            } catch (e) {
-                alert('Không thể kết nối backend: ' + e.message);
-                location.reload();
-            }
-        }
 
-        function showResults(recs) {
-            document.getElementById('surveyCard').style.display = 'none';
-            document.getElementById('progressContainer').style.display = 'none';
-            document.querySelector('.text-muted.fs-5').style.display = 'none';
-            
-            const el = document.getElementById('results');
-            const container = document.getElementById('results-container');
-            el.style.display = 'block';
-            
-            if(recs.length === 0) {
-                container.innerHTML = '<div class="alert alert-info text-center py-4">Hiện chưa có gia sư phù hợp với lựa chọn của bạn.</div>';
-                return;
-            }
-
-            container.innerHTML = recs.map((t, i) => `
-                <div class="card result-card shadow-sm border-0 bg-white p-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <h3 class="h4 fw-bold text-dark m-0">#${i+1} ${t.name}</h3>
-                        <span class="badge bg-primary text-white fs-6 px-3 py-2 rounded-pill shadow-sm">Khớp ${t.similarity_score}%</span>
-                    </div>
-                    <p class="text-secondary mb-3" style="line-height:1.6;">${t.bio || ''}</p>
-                    <div class="d-flex flex-wrap gap-2 text-muted small mb-4">
-                        <span class="badge bg-light text-dark border px-2 py-1"><i class="bi bi-bar-chart-fill text-primary"></i> Đạt HSK ${t.hsk_level} | Dạy HSK ${t.teaching_levels}</span>
-                        ${t.specialization ? `<span class="badge bg-light text-dark border px-2 py-1">⭐ ${t.specialization}</span>` : ''}
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
-                        <span class="fw-bold text-dark fs-5 text-primary-custom">💰 ${Number(t.hourly_rate).toLocaleString()}đ/giờ</span>
-                        <button class="btn btn-primary-custom px-4 py-2 rounded-3 fw-bold shadow-sm" onclick="bookTutor(${t.id}, '${t.name}')">📅 Đặt lịch ngay</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function bookTutor(id, name) {
-            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
-            if (!user) {
-                alert('Vui lòng đăng nhập để đặt lịch!');
-                window.location.href = 'login.html';
-                return;
-            }
-            if (user.role === 'tutor') {
-                alert('Tài khoản Gia sư không thể đặt lịch học!');
-                return;
-            }
-            try {
-                await TutorAPI.book(id, "Xin chào gia sư, tôi đặt lịch qua mục Khảo sát AI!");
-                alert(`Đã gửi yêu cầu đặt lịch với gia sư ${name} thành công! Bạn có thể xem trong Bảng điều khiển.`);
             } catch (err) {
-                alert(`Lỗi: ${err.message}`);
+                showToast(`Lỗi: ${err.message}`);
+                document.getElementById('loading').classList.add('d-none');
+                document.getElementById('survey-content').classList.remove('d-none');
             }
         }
+
+        async function bookTutor(tutorId) {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            const token = localStorage.getItem('lanying_token');
+            
+            if (!user || !token) {
+                showToast('Bạn cần đăng nhập học viên để đặt lịch!');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+            if (user.role !== 'student') {
+                showToast('Chỉ tài khoản Học viên mới có thể đặt lịch học!');
+                return;
+            }
+
+            try {
+                await MatchAPI.bookTutor(tutorId);
+                showToast('Đăng ký lớp thành công! Bạn có thể xem ở Dashboard.');
+            } catch (err) {
+                showToast(`Lỗi đặt lịch: ${err.message}`);
+            }
+        }
+
+        updateProgress();
     </script>
 </body>
 </html>

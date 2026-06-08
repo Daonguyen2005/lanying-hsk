@@ -4,339 +4,256 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lanying HSK - Nền tảng gia sư tiếng Trung thông minh</title>
-    <meta name="description" content="Tìm gia sư tiếng Trung phù hợp nhất với bạn bằng AI Cosine Similarity và Chatbot RAG">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        .tutor-grid-dynamic { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2rem; }
-    </style>
 </head>
-<body class="bg-light">
+<body>
+    <!-- Background Blobs -->
+    <div class="bg-blobs"></div>
+
     <!-- Toast -->
     <div class="toast-custom" id="toast"></div>
 
-    <!-- Modal Dashboard (Bootstrap Modal) -->
-    <div class="modal fade" id="dashboardModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-          <div class="modal-header border-bottom px-4 py-3">
-            <h5 class="modal-title text-primary-custom fw-bold fs-4" id="dashTitle">Bảng điều khiển</h5>
-            <button type="button" class="btn-close" onclick="closeDashboard()"></button>
-          </div>
-          <div class="modal-body p-4" id="dashContent">
-            <div class="text-center py-5 text-secondary">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2 fw-medium">⏳ Đang tải dữ liệu...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top py-3">
+    <!-- Glass Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light glass-nav sticky-top py-3 animate-fade-up">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
                 <span class="logo-icon">&#20013;</span>
-                <h1 class="m-0 fs-4 fw-bold text-primary-custom">Lanying HSK</h1>
+                <h1 class="m-0 fs-4 fw-bold text-gradient">Lanying HSK</h1>
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
-                <ul class="navbar-nav mx-auto fw-semibold">
-                    <li class="nav-item"><a class="nav-link px-3" href="#">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#tutors">Gia sư</a></li>
-                    <li class="nav-item"><a class="nav-link px-3 text-primary-custom" href="frontend/pages/survey.html">Khảo sát AI</a></li>
+                <ul class="navbar-nav ms-auto fw-semibold gap-3 align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#giasu">Danh sách Gia sư</a></li>
+                    <li class="nav-item"><a class="nav-link" href="frontend/pages/survey.html">Tìm Lộ trình AI</a></li>
+                    <li class="nav-item ms-lg-3" id="nav-login-btn">
+                        <a class="btn btn-outline-custom rounded-pill px-4" href="frontend/pages/login.html">Đăng nhập</a>
+                    </li>
                 </ul>
-                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" id="navActions">
-                    <button class="btn btn-outline-secondary fw-semibold rounded-3 px-4 py-2" onclick="window.location='frontend/pages/login.html'">Đăng nhập</button>
-                    <button class="btn btn-primary-custom rounded-3 px-4 py-2" onclick="window.location='frontend/pages/login.html?tab=register'">Đăng ký miễn phí</button>
-                </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <header class="hero py-5" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 100%); min-height: 80vh; display: flex; align-items: center;">
-        <div class="container">
-            <div class="row justify-content-center text-center fade-in">
-                <div class="col-lg-8 col-xl-7">
-                    <div class="badge-custom shadow-sm mb-4">✨ AI Powered by Cosine Similarity & RAG</div>
-                    <h2 class="display-4 fw-bolder text-dark mb-4 lh-sm">Tìm Gia Sư Tiếng Trung<br>Hoàn Hảo Chỉ Trong 30 Giây</h2>
-                    <p class="lead text-secondary mb-5 px-md-4">Hệ thống AI phân tích nhu cầu của bạn và đề xuất gia sư phù hợp nhất. Hỗ trợ lộ trình học từ HSK 1 đến HSK 6.</p>
-                    <div class="d-flex justify-content-center gap-3 flex-column flex-sm-row mb-5">
-                        <button class="btn btn-primary-custom btn-lg px-5 py-3 rounded-pill shadow-sm" onclick="window.location='frontend/pages/survey.html'">🎯 Khảo sát lộ trình ngay</button>
-                        <button class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow-sm text-secondary fw-bold" onclick="document.getElementById('tutors').scrollIntoView({behavior:'smooth'})">Xem gia sư</button>
-                    </div>
-                    <div class="row text-center mt-4">
-                        <div class="col-6 col-md-3 mb-4">
-                            <h3 class="text-primary-custom fw-bold display-6 mb-0">50+</h3>
-                            <span class="text-muted small text-uppercase fw-semibold">Gia sư chất lượng</span>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <h3 class="text-primary-custom fw-bold display-6 mb-0">1K+</h3>
-                            <span class="text-muted small text-uppercase fw-semibold">Học viên</span>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <h3 class="text-primary-custom fw-bold display-6 mb-0">1-6</h3>
-                            <span class="text-muted small text-uppercase fw-semibold">Đầy đủ cấp HSK</span>
-                        </div>
-                        <div class="col-6 col-md-3 mb-4">
-                            <h3 class="text-primary-custom fw-bold display-6 mb-0">24/7</h3>
-                            <span class="text-muted small text-uppercase fw-semibold">AI hỗ trợ</span>
-                        </div>
-                    </div>
+    <section class="container py-5 mt-4">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6 text-center text-lg-start animate-fade-up delay-100">
+                <span class="badge bg-primary-custom bg-opacity-10 text-primary-custom rounded-pill px-3 py-2 fw-semibold mb-3">#1 Nền tảng Gia sư Tiếng Trung AI</span>
+                <h1 class="display-4 fw-bold mb-4 text-dark lh-sm">Chinh phục HSK <br>Cùng Gia sư <span class="text-gradient">Đỉnh Cao</span></h1>
+                <p class="lead text-secondary mb-5 fs-5">Hệ thống AI thông minh phân tích trình độ và gợi ý gia sư phù hợp nhất, giúp bạn rút ngắn 50% thời gian học tiếng Trung.</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    <a href="frontend/pages/survey.html" class="btn btn-primary-custom btn-lg">Khảo sát & Tìm Gia sư ngay</a>
+                    <a href="#giasu" class="btn btn-outline-custom btn-lg">Xem danh sách Gia sư</a>
                 </div>
             </div>
-        </div>
-    </header>
-
-    <!-- How it works -->
-    <section class="py-5 bg-white">
-        <div class="container py-5">
-            <h3 class="text-center fw-bold mb-5 fs-2 text-dark">Quy Trình Học Tập Thông Minh</h3>
-            <div class="row g-4 mt-2">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
-                        <div class="display-3 mb-4">📝</div>
-                        <h4 class="fw-bold h5 mb-3 text-dark">1. Khảo sát đầu vào</h4>
-                        <p class="text-secondary mb-0">Cung cấp mục tiêu HSK, thời gian và trình độ hiện tại của bạn trong 1 phút.</p>
+            <div class="col-lg-6 mt-5 mt-lg-0 text-center animate-fade-up delay-200">
+                <div class="position-relative d-inline-block">
+                    <div class="glass-panel p-4 position-absolute top-0 start-0 translate-middle shadow-glow d-none d-md-block" style="z-index: 2; border-radius: 20px;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success rounded-circle" style="width: 12px; height: 12px;"></div>
+                            <span class="fw-bold">150+ Gia sư online</span>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
-                        <div class="display-3 mb-4">🤖</div>
-                        <h4 class="fw-bold h5 mb-3 text-dark">2. AI Phân Tích</h4>
-                        <p class="text-secondary mb-0">Thuật toán <strong>Cosine Similarity</strong> tính toán và tìm gia sư khớp nhất với hồ sơ của bạn.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-light rounded-4 p-5 text-center tutor-card">
-                        <div class="display-3 mb-4">🎯</div>
-                        <h4 class="fw-bold h5 mb-3 text-dark">3. Nhận Gợi Ý</h4>
-                        <p class="text-secondary mb-0">Xem top 3 gia sư phù hợp kèm điểm tương thích và đặt lịch học ngay.</p>
-                    </div>
+                    <img src="https://images.unsplash.com/photo-1546422904-90eab23c3d7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Học tiếng Trung" class="img-fluid rounded-5 shadow-lg" style="object-fit: cover; height: 450px; width: 100%; border: 4px solid white;">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Tutors Section -->
-    <section id="tutors" class="py-5 bg-light">
-        <div class="container py-5">
-            <h3 class="fw-bold mb-5 text-center fs-2 text-dark">Gia Sư Nổi Bật</h3>
-            <div id="tutorGrid" class="row g-4">
-                <div class="col-12 text-center py-5 text-secondary">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-3 fw-medium">⏳ Đang tải danh sách gia sư từ hệ thống...</p>
-                </div>
-            </div>
+    <section id="giasu" class="container py-5 mt-5">
+        <div class="text-center mb-5 animate-fade-up delay-100">
+            <h2 class="fw-bold display-6 mb-3">Gia sư <span class="text-gradient">Tiêu biểu</span></h2>
+            <p class="text-secondary fs-5">Lựa chọn từ mạng lưới gia sư chất lượng cao của Lanying HSK</p>
+        </div>
+        <div class="row g-4" id="tutorList">
+            <!-- Tutor Cards will be injected here -->
         </div>
     </section>
 
-    <!-- Floating Chatbot -->
-    <div class="chatbot-widget" onclick="toggleChat()">💬 Hỏi AI tư vấn</div>
+    <!-- Chatbot Floating Widget -->
+    <div class="chatbot-widget animate-fade-up delay-300" onclick="toggleChat()">
+        <span class="fs-4">🤖</span>
+        <span>Hỏi AI tư vấn</span>
+    </div>
 
+    <!-- AI Chat Window (Glassmorphism) -->
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             <div>
-                <h4>Trợ lý AI Lanying HSK</h4>
-                <small>Hỏi về ngữ pháp HSK, lộ trình học...</small>
+                <h4>Lanying AI Assistant</h4>
+                <small>Luôn sẵn sàng hỗ trợ bạn 24/7</small>
             </div>
-            <button class="close-chat" onclick="toggleChat()">✕</button>
+            <button class="close-chat" onclick="toggleChat()">&times;</button>
         </div>
         <div class="chat-body" id="chatBody">
-            <div class="chat-msg ai">Xin chào! Tôi là trợ lý AI của Lanying HSK. Bạn muốn hỏi về ngữ pháp HSK hay cần tư vấn lộ trình học?</div>
+            <div class="chat-msg ai">Xin chào! Tôi là trợ lý AI của Lanying HSK. Bạn đang quan tâm đến khóa học tiếng Trung hay cần tư vấn ngữ pháp?</div>
         </div>
         <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="Hỏi về ngữ pháp HSK..." onkeypress="if(event.key==='Enter')sendChat()">
-            <button onclick="sendChat()">Gửi</button>
+            <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." onkeypress="handleChatKey(event)">
+            <button onclick="sendMessage()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="frontend/js/api.js"></script>
     <script>
-        const API = '';
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
 
-        // ---- Navbar: Kiểm tra đăng nhập ----
-        function checkAuth() {
+        // Toggle Chat
+        function toggleChat() {
+            const chat = document.getElementById('chatWindow');
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const body = document.getElementById('chatBody');
+            
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-msg user animate-fade-up';
+            userDiv.textContent = msg;
+            body.appendChild(userDiv);
+            
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            // Add typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-msg typing animate-fade-up';
+            typingDiv.textContent = 'AI đang suy nghĩ...';
+            body.appendChild(typingDiv);
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const data = await ChatAPI.sendMessage(msg);
+                typingDiv.remove();
+
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'chat-msg ai animate-fade-up';
+                // Convert markdown-like newlines
+                aiDiv.innerHTML = data.reply.replace(/\n/g, '<br>');
+                body.appendChild(aiDiv);
+            } catch (err) {
+                typingDiv.remove();
+                const errDiv = document.createElement('div');
+                errDiv.className = 'chat-msg ai text-danger animate-fade-up';
+                errDiv.textContent = `Lỗi: ${err.message}`;
+                body.appendChild(errDiv);
+            }
+            body.scrollTop = body.scrollHeight;
+        }
+
+        async function loadTutors() {
+            try {
+                const data = await TutorAPI.getAllTutors();
+                const container = document.getElementById('tutorList');
+                container.innerHTML = '';
+
+                data.tutors.forEach((tutor, index) => {
+                    const delayClass = `delay-${(index % 3 + 1) * 100}`;
+                    const levels = tutor.teaching_levels ? tutor.teaching_levels.split(',').map(l => `HSK ${l}`).join(', ') : 'Chưa cập nhật';
+                    const rate = tutor.hourly_rate ? tutor.hourly_rate.toLocaleString('vi-VN') + 'đ/h' : 'Thỏa thuận';
+                    
+                    const card = document.createElement('div');
+                    card.className = `col-md-6 col-lg-4 animate-fade-up ${delayClass}`;
+                    card.innerHTML = `
+                        <div class="glass-panel h-100 p-4">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="tutor-avatar">${tutor.name.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <h4 class="fw-bold mb-1">${tutor.name}</h4>
+                                    <span class="badge bg-primary-custom bg-opacity-10 text-primary-custom rounded-pill">Gia sư Lanying</span>
+                                </div>
+                            </div>
+                            <p class="text-secondary mb-4 line-clamp-3" style="min-height: 70px;">
+                                ${tutor.bio || 'Chưa có thông tin giới thiệu.'}
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                <span class="badge bg-light text-dark border px-2 py-1"><i class="bi bi-book"></i> Dạy: ${levels}</span>
+                                <span class="badge bg-light text-dark border px-2 py-1"><i class="bi bi-cash"></i> Phí: ${rate}</span>
+                            </div>
+                            <button class="btn btn-primary-custom w-100 py-2 rounded-pill" onclick="bookTutor(${tutor.id})">Đặt lịch học ngay</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                showToast(`Không thể tải danh sách gia sư: ${err.message}`);
+            }
+        }
+
+        async function bookTutor(tutorId) {
             const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
             const token = localStorage.getItem('lanying_token');
             
-            if (!user || !token) return; // Chưa đăng nhập
-
-            if (user.role === 'tutor') {
-                // Giáo viên không được vào trang học sinh
-                window.location.href = '/frontend/pages/tutor_index.html';
+            if (!user || !token) {
+                showToast('Bạn cần đăng nhập học viên để đặt lịch!');
+                setTimeout(() => window.location.href = 'frontend/pages/login.html', 1500);
+                return;
+            }
+            if (user.role !== 'student') {
+                showToast('Chỉ tài khoản Học viên mới có thể đặt lịch học!');
                 return;
             }
 
-            // Hiện giao diện Học sinh
-            document.getElementById('navActions').innerHTML = `
-                <button class="btn btn-link text-primary-custom fw-bold text-decoration-none px-3" onclick="openDashboard()">Xin chào Học sinh ${user.name}</button>
-                <button class="btn btn-outline-secondary fw-semibold rounded-3 px-3 py-2" onclick="logout()">Đăng xuất</button>
-            `;
+            try {
+                await MatchAPI.bookTutor(tutorId);
+                showToast('Đăng ký lớp thành công! Gia sư sẽ sớm liên hệ với bạn.');
+            } catch (err) {
+                showToast(`Lỗi đặt lịch: ${err.message}`);
+            }
+        }
+
+        // Check login to update UI
+        function checkLoginState() {
+            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
+            if (user) {
+                document.getElementById('nav-login-btn').innerHTML = `
+                    <div class="dropdown">
+                        <button class="btn btn-primary-custom rounded-pill dropdown-toggle px-4" type="button" data-bs-toggle="dropdown">
+                            Chào, ${user.name}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-soft border-0 mt-2 p-2 rounded-4">
+                            <li><a class="dropdown-item rounded-3 py-2" href="${user.role === 'tutor' ? 'frontend/pages/tutor_index.html' : 'index.html'}">Dashboard của tôi</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger rounded-3 py-2 fw-semibold" href="#" onclick="logout()">Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                `;
+            }
         }
 
         function logout() {
             localStorage.removeItem('lanying_token');
             localStorage.removeItem('lanying_user');
-            location.reload();
+            window.location.reload();
         }
 
-        function showToast(msg, duration=3000) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', duration);
-        }
-
-        // ---- Load Tutors từ API ----
-        async function loadTutors() {
-            try {
-                const res = await fetch(`${API}/api/tutors/`);
-                const tutors = await res.json();
-                const grid = document.getElementById('tutorGrid');
-
-                if (!tutors.length) {
-                    grid.innerHTML = '<div class="col-12"><p class="text-center text-muted">Chưa có gia sư nào.</p></div>';
-                    return;
-                }
-
-                grid.innerHTML = tutors.map(t => `
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 tutor-card border-0 shadow-sm rounded-4 bg-white">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center gap-3 mb-4">
-                                    <div class="tutor-avatar fs-4 shadow-sm">${t.name.charAt(0)}</div>
-                                    <div>
-                                        <h4 class="h5 fw-bold text-dark mb-1">${t.name}</h4>
-                                        <span class="text-primary-custom fw-semibold small">Đạt HSK ${t.hsk_level} | Dạy HSK ${t.teaching_levels}</span>
-                                    </div>
-                                </div>
-                                <p class="text-secondary small mb-4" style="min-height: 40px; line-height: 1.6;">${t.bio || ''}</p>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <span class="badge bg-light text-secondary border px-2 py-1 fw-medium">Dạy HSK ${t.teaching_levels}</span>
-                                    ${t.specialization ? `<span class="badge bg-light text-secondary border px-2 py-1 fw-medium">${t.specialization}</span>` : ''}
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent border-top p-4 d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-dark fs-5">${Number(t.hourly_rate || 0).toLocaleString('vi-VN')}đ/h</span>
-                                <button class="btn btn-primary-custom px-4 py-2 rounded-3" onclick="bookTutor(${t.id},'${t.name}')">Đặt lịch</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch(e) {
-                document.getElementById('tutorGrid').innerHTML = `
-                    <div class="col-12 text-center text-danger py-4">
-                        Không thể tải dữ liệu. Backend đang chạy không? <br>
-                        <small>Lỗi: ${e.message}</small>
-                    </div>`;
-            }
-        }
-
-        async function bookTutor(id, name) {
-            const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
-            if (!user) {
-                showToast('Vui lòng đăng nhập để đặt lịch!');
-                setTimeout(() => window.location='frontend/pages/login.html', 1500);
-                return;
-            }
-            if (user.role === 'tutor') {
-                showToast('Tài khoản Gia sư không thể đặt lịch học!');
-                return;
-            }
-            try {
-                await TutorAPI.book(id, "Xin chào gia sư!");
-                showToast(`Đã gửi yêu cầu đặt lịch với gia sư ${name} thành công!`);
-            } catch (err) {
-                showToast(`Lỗi: ${err.message}`);
-            }
-        }
-
-        // ---- Dashboard Modal ----
-        let dashModalInstance = null;
-        async function openDashboard() {
-            if (!dashModalInstance) {
-                dashModalInstance = new bootstrap.Modal(document.getElementById('dashboardModal'));
-            }
-            dashModalInstance.show();
-            document.getElementById('dashContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 fw-medium text-secondary">⏳ Đang tải dữ liệu...</p></div>';
-            try {
-                const data = await AuthAPI.getDashboard();
-                if (data.role === 'tutor') {
-                    // Tutor dashboard logic not used here (redirected earlier)
-                } else {
-                    document.getElementById('dashTitle').textContent = `Lịch sử học tập: ${data.name}`;
-                    let html = `<h5 class="mb-4 fw-bold text-dark">Gia sư bạn đã đăng ký:</h5>`;
-                    if (data.bookings.length === 0) {
-                        html += `<p class="text-muted">Bạn chưa đặt lịch với gia sư nào.</p>`;
-                    } else {
-                        html += `<div class="list-group list-group-flush gap-2">`;
-                        data.bookings.forEach(b => {
-                            const date = new Date(b.created_at).toLocaleString('vi-VN');
-                            let statusBadge = b.status === 'pending' ? '<span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill">Đang chờ duyệt</span>' : (b.status === 'accepted' ? '<span class="badge bg-success-subtle text-success-emphasis px-3 py-2 rounded-pill">Đã duyệt</span>' : '<span class="badge bg-danger-subtle text-danger-emphasis px-3 py-2 rounded-pill">Từ chối</span>');
-                            html += `<div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center p-3 border rounded-3 bg-white shadow-sm">
-                                <div class="mb-2 mb-md-0">
-                                    <h6 class="mb-1 fw-bold text-dark fs-5">${b.tutor_name}</h6>
-                                    <small class="text-secondary"><i class="bi bi-calendar3"></i> Ngày đặt: ${date}</small>
-                                </div>
-                                <div>${statusBadge}</div>
-                            </div>`;
-                        });
-                        html += `</div>`;
-                    }
-                    document.getElementById('dashContent').innerHTML = html;
-                }
-            } catch (err) {
-                document.getElementById('dashContent').innerHTML = `<p class="text-danger">Lỗi tải dữ liệu: ${err.message}</p>`;
-            }
-        }
-
-        function closeDashboard() {
-            if (dashModalInstance) dashModalInstance.hide();
-        }
-
-        // ---- Chatbot ----
-        function toggleChat() {
-            const w = document.getElementById('chatWindow');
-            w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        async function sendChat() {
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-
-            const body = document.getElementById('chatBody');
-            body.innerHTML += `<div class="chat-msg user">${msg}</div>`;
-            body.innerHTML += `<div class="chat-msg ai typing" id="typing">Đang trả lời...</div>`;
-            body.scrollTop = body.scrollHeight;
-            input.value = '';
-
-            try {
-                const res = await fetch(`${API}/api/chat/`, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({message: msg})
-                });
-                const data = await res.json();
-                document.getElementById('typing').outerHTML = `<div class="chat-msg ai">${data.reply}</div>`;
-            } catch(e) {
-                document.getElementById('typing').outerHTML = `<div class="chat-msg ai">Xin lỗi, chatbot đang gặp lỗi kết nối.</div>`;
-            }
-            body.scrollTop = body.scrollHeight;
-        }
-
-        // Khởi tạo
-        checkAuth();
-        loadTutors();
+        window.onload = () => {
+            loadTutors();
+            checkLoginState();
+        };
     </script>
 </body>
 </html>

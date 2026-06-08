@@ -3,71 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Lớp học - Lanying HSK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>Quản lý Gia sư - Lanying HSK</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../style.css">
+    <style>
+        .dashboard-stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-stat-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .dashboard-stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-glow); }
+        .dashboard-stat-card:hover::before { opacity: 1; }
+        
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            background: transparent;
+        }
+        .table-custom thead th { border: none; color: var(--gray); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; padding: 0 1.5rem; }
+        .table-custom tbody tr { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px; transition: all 0.3s; }
+        .table-custom tbody tr:hover { transform: scale(1.01); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .table-custom tbody td { border: none; padding: 1.2rem 1.5rem; vertical-align: middle; }
+        .table-custom tbody td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        .table-custom tbody td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+    </style>
 </head>
-<body class="bg-light">
-    <!-- Toast -->
+<body>
+    <div class="bg-blobs"></div>
     <div class="toast-custom" id="toast"></div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top py-3">
+    <!-- Glass Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light glass-nav sticky-top py-3 animate-fade-up">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="tutor_index.html">
                 <span class="logo-icon">&#20013;</span>
-                <h1 class="m-0 fs-4 fw-bold text-primary-custom">Lanying Gia sư</h1>
+                <h1 class="m-0 fs-4 fw-bold text-gradient">Lanying Gia sư</h1>
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
                 <ul class="navbar-nav mx-auto fw-semibold">
-                    <li class="nav-item"><a class="nav-link px-3 active text-primary-custom" href="tutor_index.html">Quản lý lớp</a></li>
+                    <li class="nav-item"><a class="nav-link active text-primary-custom px-3" href="tutor_index.html">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link px-3" href="tutor_profile.html">Hồ sơ cá nhân</a></li>
                 </ul>
-                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" id="navActions">
+                <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0 align-items-center" id="navActions">
                     <!-- Render via JS -->
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container py-5">
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-5">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end border-bottom pb-4 mb-4 gap-3">
-                <div>
-                    <h2 class="display-6 fw-bold text-dark m-0">Quản lý Lớp học</h2>
-                    <p class="text-muted mt-2 mb-0 fs-5" id="greeting-text">Đang tải dữ liệu...</p>
-                </div>
-                <div id="hsk-badge" class="badge bg-primary text-white fs-6 px-4 py-2 rounded-pill shadow-sm">
-                    HSK -
+        <div class="d-flex justify-content-between align-items-end mb-4 animate-fade-up">
+            <div>
+                <h2 class="fw-bold display-6 mb-1">Tổng quan</h2>
+                <p class="text-secondary fs-5 m-0">Chào mừng bạn trở lại, hệ thống Lanying HSK</p>
+            </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="row g-4 mb-5 animate-fade-up delay-100">
+            <div class="col-md-4">
+                <div class="dashboard-stat-card bg-gradient-custom">
+                    <h5 class="opacity-75 mb-2 fw-semibold">Tổng học viên</h5>
+                    <h2 class="display-5 fw-bold m-0" id="total-students">0</h2>
                 </div>
             </div>
-
-            <div class="row g-4 mb-5">
-                <div class="col-md-6">
-                    <div class="card bg-primary text-white border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, #0ea5e9, #3b82f6) !important;">
-                        <h3 class="h5 fw-medium mb-2 opacity-75">Yêu cầu chờ duyệt</h3>
-                        <p class="display-4 fw-bold m-0" id="stat-pending">0</p>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card text-white border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, #10b981, #059669);">
-                        <h3 class="h5 fw-medium mb-2 opacity-75">Học sinh đang dạy</h3>
-                        <p class="display-4 fw-bold m-0" id="stat-accepted">0</p>
-                    </div>
+            <div class="col-md-4">
+                <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h5 class="opacity-75 mb-2 fw-semibold">Đang chờ duyệt</h5>
+                    <h2 class="display-5 fw-bold m-0" id="pending-students">0</h2>
                 </div>
             </div>
-
-            <h3 class="h4 fw-bold text-dark mb-4">Danh sách Yêu cầu & Học viên</h3>
-            <ul class="list-group list-group-flush gap-3" id="booking-list">
-                <div class="text-center py-5 text-secondary">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-3 fw-medium">⏳ Đang tải danh sách...</p>
+            <div class="col-md-4">
+                <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h5 class="opacity-75 mb-2 fw-semibold">Đánh giá trung bình</h5>
+                    <h2 class="display-5 fw-bold m-0">5.0 ⭐</h2>
                 </div>
-            </ul>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 p-md-5 animate-fade-up delay-200">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark m-0">Danh sách Học viên đăng ký</h3>
+                <button class="btn btn-outline-custom rounded-pill btn-sm" onclick="loadStudents()"><i class="bi bi-arrow-clockwise"></i> Làm mới</button>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th>Học viên</th>
+                            <th>Ngày đăng ký</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list">
+                        <tr><td colspan="4" class="text-center py-4 text-secondary">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -90,104 +141,90 @@
         async function checkAuth() {
             const user = JSON.parse(localStorage.getItem('lanying_user') || 'null');
             const token = localStorage.getItem('lanying_token');
-            if (!user || !token) {
+            if (!user || !token || user.role !== 'tutor') {
                 window.location.href = 'login.html';
                 return;
             }
-            
-            if (user.role !== 'tutor') {
-                window.location.replace('../../index.html');
-                return;
-            }
-            
             document.getElementById('navActions').innerHTML = `
-                <span class="navbar-text text-primary-custom fw-semibold me-3">Xin chào Giáo viên <b>${user.name}</b></span>
-                <button class="btn btn-outline-secondary fw-semibold rounded-3 px-3 py-2" onclick="logout()">Đăng xuất</button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="tutor-avatar shadow-sm" style="width: 40px; height: 40px; font-size: 1.2rem;">${user.name.charAt(0).toUpperCase()}</div>
+                    <span class="fw-bold text-dark">${user.name}</span>
+                    <button class="btn btn-light rounded-circle p-2 ms-2 shadow-sm text-danger" onclick="logout()" title="Đăng xuất">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </button>
+                </div>
             `;
-            document.getElementById('greeting-text').textContent = `Chào mừng Giáo viên ${user.name} quản lý lớp học!`;
-
-            try {
-                const dashData = await AuthAPI.getDashboard();
-                if (dashData.role !== 'tutor') {
-                    user.role = 'student';
-                    localStorage.setItem('lanying_user', JSON.stringify(user));
-                    window.location.replace('../../index.html');
-                } else {
-                    user.name = dashData.name;
-                    user.role = 'tutor';
-                    localStorage.setItem('lanying_user', JSON.stringify(user));
-                    document.getElementById('navActions').innerHTML = `
-                        <span class="navbar-text text-primary-custom fw-semibold me-3">Xin chào Giáo viên <b>${dashData.name}</b></span>
-                        <button class="btn btn-outline-secondary fw-semibold rounded-3 px-3 py-2" onclick="logout()">Đăng xuất</button>
-                    `;
-                    document.getElementById('greeting-text').textContent = `Chào mừng Giáo viên ${dashData.name} quản lý lớp học!`;
-                }
-            } catch(e) {
-                console.log('Could not verify role:', e.message);
-            }
         }
 
-        async function loadDashboard() {
+        async function updateStatus(studentId, status) {
             try {
-                const data = await AuthAPI.getDashboard();
-                document.getElementById('hsk-badge').textContent = `Cấp độ hiện tại: HSK ${data.hsk_level}`;
-
-                const bookings = data.bookings;
-                const pending = bookings.filter(b => b.status === 'pending').length;
-                const accepted = bookings.filter(b => b.status === 'accepted').length;
-
-                document.getElementById('stat-pending').textContent = pending;
-                document.getElementById('stat-accepted').textContent = accepted;
-
-                const listEl = document.getElementById('booking-list');
-                if (bookings.length === 0) {
-                    listEl.innerHTML = `<div class="text-center py-5 text-muted bg-light rounded-4 border">Chưa có yêu cầu nào.</div>`;
-                    return;
-                }
-
-                listEl.innerHTML = bookings.map(b => {
-                    const date = new Date(b.created_at).toLocaleString('vi-VN');
-                    let statusBadge = b.status === 'pending' ? '<span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill">Chờ duyệt</span>' : (b.status === 'accepted' ? '<span class="badge bg-success-subtle text-success-emphasis px-3 py-2 rounded-pill">Đã duyệt</span>' : '<span class="badge bg-danger-subtle text-danger-emphasis px-3 py-2 rounded-pill">Đã từ chối</span>');
-                    
-                    let actionBtns = '';
-                    if (b.status === 'pending') {
-                        actionBtns = `
-                            <div class="d-flex gap-2 mt-3 mt-md-0">
-                                <button class="btn btn-success fw-semibold px-4 rounded-3 shadow-sm" onclick="updateBooking(${b.id}, 'accepted')">Duyệt</button>
-                                <button class="btn btn-danger fw-semibold px-4 rounded-3 shadow-sm" onclick="updateBooking(${b.id}, 'rejected')">Từ chối</button>
-                            </div>
-                        `;
-                    }
-
-                    return `
-                        <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center p-4 border rounded-4 bg-white shadow-sm">
-                            <div class="mb-3 mb-md-0">
-                                <h4 class="h5 fw-bold text-dark mb-1">Học viên: ${b.student_name}</h4>
-                                <p class="text-secondary small mb-2">Ngày gửi: ${date}</p>
-                                <div>Trạng thái: ${statusBadge}</div>
-                            </div>
-                            ${actionBtns}
-                        </li>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                showToast(`Lỗi tải dữ liệu: ${err.message}`);
-            }
-        }
-
-        async function updateBooking(bookingId, status) {
-            try {
-                await TutorAPI.updateBookingStatus(bookingId, status);
-                showToast(`Đã ${status === 'accepted' ? 'duyệt' : 'từ chối'} lớp thành công!`);
-                loadDashboard();
+                await TutorAPI.updateStudentStatus(studentId, status);
+                showToast(`Đã ${status === 'accepted' ? 'chấp nhận' : 'từ chối'} học viên!`);
+                loadStudents();
             } catch (err) {
                 showToast(`Lỗi: ${err.message}`);
             }
         }
 
+        async function loadStudents() {
+            const tbody = document.getElementById('student-list');
+            try {
+                const data = await TutorAPI.getStudents();
+                
+                document.getElementById('total-students').textContent = data.students.length;
+                document.getElementById('pending-students').textContent = data.students.filter(s => s.status === 'pending').length;
+
+                if (data.students.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-secondary">Chưa có học viên nào đăng ký lớp của bạn.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.students.forEach(student => {
+                    const row = document.createElement('tr');
+                    
+                    let statusBadge = '';
+                    let actionButtons = '';
+                    
+                    if (student.status === 'pending') {
+                        statusBadge = `<span class="badge bg-warning text-dark rounded-pill px-3 py-2">Đang chờ</span>`;
+                        actionButtons = `
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success rounded-pill btn-sm px-3" onclick="updateStatus(${student.id}, 'accepted')">Nhận</button>
+                                <button class="btn btn-outline-danger rounded-pill btn-sm px-3" onclick="updateStatus(${student.id}, 'rejected')">Từ chối</button>
+                            </div>
+                        `;
+                    } else if (student.status === 'accepted') {
+                        statusBadge = `<span class="badge bg-success rounded-pill px-3 py-2">Đã nhận</span>`;
+                        actionButtons = `<button class="btn btn-light rounded-pill btn-sm px-3 text-secondary disabled">Đã xử lý</button>`;
+                    } else {
+                        statusBadge = `<span class="badge bg-danger rounded-pill px-3 py-2">Đã từ chối</span>`;
+                        actionButtons = `<button class="btn btn-light rounded-pill btn-sm px-3 text-secondary disabled">Đã xử lý</button>`;
+                    }
+
+                    row.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width: 40px; height: 40px;">
+                                    ${student.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="fw-bold text-dark">${student.name}</div>
+                            </div>
+                        </td>
+                        <td class="text-secondary fw-medium">Hôm nay</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+                showToast(`Lỗi tải dữ liệu: ${err.message}`);
+            }
+        }
+
         checkAuth();
-        loadDashboard();
+        loadStudents();
     </script>
 </body>
 </html>

@@ -4,122 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Lanying HSK</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../style.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdfa 100%);
+        .login-wrapper {
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
         }
-        .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-            background-color: var(--primary) !important;
-            color: white !important;
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            position: relative;
         }
+        /* Custom Nav Pills for Login/Register */
         .nav-pills .nav-link {
             color: var(--gray);
             font-weight: 600;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s;
+        }
+        .nav-pills .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
         }
     </style>
 </head>
-<body class="d-flex align-items-center justify-content-center">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
-                    <div class="text-center mb-4">
-                        <span class="logo-icon fs-1">&#20013;</span>
-                        <h1 class="text-primary-custom fs-3 fw-bold mt-2">Lanying HSK</h1>
-                        <p class="text-muted">Nền tảng gia sư tiếng Trung thông minh</p>
-                    </div>
+<body>
+    <div class="bg-blobs"></div>
+    <div class="toast-custom" id="toast"></div>
 
-                    <ul class="nav nav-pills nav-fill bg-light rounded-3 p-1 mb-4" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-3" id="tab-login" onclick="switchTab('login')" type="button">Đăng nhập</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-3" id="tab-register" onclick="switchTab('register')" type="button">Đăng ký</button>
-                        </li>
-                    </ul>
+    <div class="container login-wrapper">
+        <div class="glass-panel login-card p-4 p-md-5 animate-fade-up">
+            
+            <div class="text-center mb-4">
+                <a href="../../index.html" class="text-decoration-none">
+                    <span class="logo-icon">&#20013;</span>
+                    <h2 class="fw-bold text-gradient mt-2">Lanying HSK</h2>
+                </a>
+                <p class="text-secondary mt-2">Cộng đồng Gia sư & Học viên Tiếng Trung</p>
+            </div>
 
-                    <!-- Login Form -->
+            <!-- Tabs -->
+            <ul class="nav nav-pills nav-justified mb-4 bg-light rounded-pill p-1 shadow-sm border border-white" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">Đăng nhập</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">Đăng ký</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="authTabsContent">
+                <!-- Login Form -->
+                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
                     <form id="login-form" onsubmit="handleLogin(event)">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-dark">Email</label>
-                            <input type="email" class="form-control form-control-lg bg-light" id="login-email" placeholder="email@example.com" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark ms-2">Tên đăng nhập</label>
+                            <input type="text" class="form-control-glass w-100" id="login_username" required placeholder="Nhập tên đăng nhập">
                         </div>
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">Mật khẩu</label>
-                            <input type="password" class="form-control form-control-lg bg-light" id="login-password" placeholder="Nhập mật khẩu" required>
+                            <label class="form-label fw-bold text-dark ms-2">Mật khẩu</label>
+                            <input type="password" class="form-control-glass w-100" id="login_password" required placeholder="••••••••">
                         </div>
-                        <div class="mb-4 bg-light p-3 rounded-3 border">
-                            <label class="form-label fw-bold text-dark d-block mb-2">Đăng nhập với tư cách:</label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="login-role" id="role-student-login" value="student" checked>
-                                    <label class="form-check-label" for="role-student-login">Học viên</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="login-role" id="role-tutor-login" value="tutor">
-                                    <label class="form-check-label" for="role-tutor-login">Gia sư</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="alert alert-danger py-2" id="login-error" style="display:none;"></div>
-                        <button class="btn btn-primary-custom w-100 py-3 rounded-3 fs-5" type="submit">Đăng nhập</button>
+                        <button class="btn btn-primary-custom w-100 mt-2 fs-5" type="submit" id="btnLogin">Đăng nhập ngay</button>
                     </form>
-
-                    <!-- Register Form -->
-                    <form id="register-form" style="display:none;" onsubmit="handleRegister(event)">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-dark">Họ và tên</label>
-                            <input type="text" class="form-control form-control-lg bg-light" id="reg-name" placeholder="Nguyễn Văn A" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-dark">Email</label>
-                            <input type="email" class="form-control form-control-lg bg-light" id="reg-email" placeholder="email@example.com" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">Mật khẩu</label>
-                            <input type="password" class="form-control form-control-lg bg-light" id="reg-password" placeholder="Tối thiểu 6 ký tự" required>
-                        </div>
-                        <div class="mb-4 bg-light p-3 rounded-3 border">
-                            <label class="form-label fw-bold text-dark d-block mb-2">Bạn là:</label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="reg-role" id="role-student-reg" value="student" onchange="toggleTutorFields()" checked>
-                                    <label class="form-check-label" for="role-student-reg">Học viên</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="reg-role" id="role-tutor-reg" value="tutor" onchange="toggleTutorFields()">
-                                    <label class="form-check-label" for="role-tutor-reg">Gia sư</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Các trường riêng cho Gia sư -->
-                        <div id="tutor-extra-fields" style="display:none;" class="mb-4 p-3 bg-white border border-info rounded-3">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold text-dark">Bằng HSK hiện có của bạn (Tối thiểu HSK 5):</label>
-                                <select class="form-select form-select-lg bg-light" id="reg-hsk-level">
-                                    <option value="5">HSK 5</option>
-                                    <option value="6">HSK 6</option>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label fw-bold text-dark">Chứng chỉ khác (Tùy chọn):</label>
-                                <input type="text" class="form-control form-control-lg bg-light" id="reg-specialization" placeholder="TOCFL, Chứng chỉ Sư phạm...">
-                            </div>
-                        </div>
-                        <div class="alert alert-danger py-2" id="register-error" style="display:none;"></div>
-                        <div class="alert alert-success py-2" id="register-success" style="display:none;"></div>
-                        <button class="btn btn-primary-custom w-100 py-3 rounded-3 fs-5" type="submit">Tạo tài khoản</button>
-                    </form>
-
-                    <div class="text-center mt-4">
-                        <a href="../../index.html" class="text-decoration-none fw-medium text-primary-custom">← Quay về trang chủ</a>
-                    </div>
                 </div>
+
+                <!-- Register Form -->
+                <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                    <form id="register-form" onsubmit="handleRegister(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark ms-2">Họ và tên</label>
+                            <input type="text" class="form-control-glass w-100" id="reg_name" required placeholder="Nguyễn Văn A">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark ms-2">Tên đăng nhập</label>
+                            <input type="text" class="form-control-glass w-100" id="reg_username" required placeholder="nguyenvana">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark ms-2">Mật khẩu</label>
+                            <input type="password" class="form-control-glass w-100" id="reg_password" required placeholder="••••••••">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark ms-2">Bạn là ai?</label>
+                            <select class="form-select form-control-glass w-100" id="reg_role" required>
+                                <option value="student">Học viên (Tìm gia sư)</option>
+                                <option value="tutor">Gia sư (Dạy học)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-custom w-100 mt-2 fs-5" type="submit" id="btnReg">Tạo tài khoản</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="../../index.html" class="text-secondary text-decoration-none small hover-primary"><i class="bi bi-arrow-left"></i> Quay lại trang chủ</a>
             </div>
         </div>
     </div>
@@ -127,78 +114,65 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/api.js"></script>
     <script>
-        // Toggle form đăng ký
-        function toggleTutorFields() {
-            const role = document.querySelector('input[name="reg-role"]:checked').value;
-            document.getElementById('tutor-extra-fields').style.display = role === 'tutor' ? 'block' : 'none';
-        }
-
-        function switchTab(tabId) {
-            document.getElementById('login-form').style.display = tabId === 'login' ? 'block' : 'none';
-            document.getElementById('register-form').style.display = tabId === 'register' ? 'block' : 'none';
-            document.getElementById('tab-login').classList.toggle('active', tabId === 'login');
-            document.getElementById('tab-register').classList.toggle('active', tabId === 'register');
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const role = document.querySelector('input[name="login-role"]:checked').value;
-            const errEl = document.getElementById('login-error');
-            const btn = e.target.querySelector('button');
-            btn.textContent = 'Đang đăng nhập...';
-            btn.disabled = true;
+            const btn = document.getElementById('btnLogin');
+            btn.textContent = 'Đang xử lý...'; btn.disabled = true;
+
+            const u = document.getElementById('login_username').value;
+            const p = document.getElementById('login_password').value;
+
             try {
-                const res = await AuthAPI.login(email, password, role);
+                const res = await AuthAPI.login(u, p);
                 localStorage.setItem('lanying_token', res.access_token);
-                localStorage.setItem('lanying_user', JSON.stringify({
-                    id: res.user_id,
-                    name: res.name,
-                    role: res.role
-                }));
-                if (res.role === 'tutor') {
-                    window.location.href = '/frontend/pages/tutor_index.html';
-                } else {
-                    window.location.href = '/index.html';
-                }
+                localStorage.setItem('lanying_user', JSON.stringify(res.user));
+                
+                showToast('Đăng nhập thành công! Đang chuyển hướng...');
+                setTimeout(() => {
+                    if (res.user.role === 'tutor') {
+                        window.location.href = 'tutor_index.html';
+                    } else {
+                        window.location.href = '../../index.html';
+                    }
+                }, 1000);
             } catch (err) {
-                btn.textContent = 'Đăng nhập';
-                btn.disabled = false;
-                errEl.textContent = err.message;
-                errEl.style.display = 'block';
+                showToast(`Đăng nhập thất bại: ${err.message}`);
+                btn.textContent = 'Đăng nhập ngay'; btn.disabled = false;
             }
         }
 
         async function handleRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const role = document.querySelector('input[name="reg-role"]:checked').value;
-            
-            let hsk_level = 1;
-            let spec = "";
-            if (role === 'tutor') {
-                hsk_level = parseInt(document.getElementById('reg-hsk-level').value);
-                spec = document.getElementById('reg-specialization').value;
-            }
+            const btn = document.getElementById('btnReg');
+            btn.textContent = 'Đang xử lý...'; btn.disabled = true;
 
-            const errEl = document.getElementById('register-error');
-            const sucEl = document.getElementById('register-success');
+            const n = document.getElementById('reg_name').value;
+            const u = document.getElementById('reg_username').value;
+            const p = document.getElementById('reg_password').value;
+            const r = document.getElementById('reg_role').value;
+
             try {
-                await AuthAPI.register(name, email, password, role, hsk_level, spec);
-                sucEl.textContent = 'Đăng ký thành công! Hãy đăng nhập.';
-                sucEl.style.display = 'block';
-                errEl.style.display = 'none';
-                setTimeout(() => switchTab('login'), 1500);
+                await AuthAPI.register(u, p, n, r);
+                showToast('Đăng ký thành công! Vui lòng đăng nhập.');
+                // Switch to login tab
+                const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
+                loginTab.show();
+                document.getElementById('login_username').value = u;
+                document.getElementById('login_password').value = '';
+                document.getElementById('register-form').reset();
             } catch (err) {
-                errEl.textContent = err.message;
-                errEl.style.display = 'block';
+                showToast(`Đăng ký thất bại: ${err.message}`);
+            } finally {
+                btn.textContent = 'Tạo tài khoản'; btn.disabled = false;
             }
         }
-
-        if (new URLSearchParams(window.location.search).get('tab') === 'register') switchTab('register');
     </script>
 </body>
 </html>
