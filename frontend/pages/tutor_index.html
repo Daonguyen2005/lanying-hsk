@@ -158,7 +158,7 @@
 
         async function updateStatus(studentId, status) {
             try {
-                await TutorAPI.updateStudentStatus(studentId, status);
+                await TutorAPI.updateBookingStatus(studentId, status);
                 showToast(`Đã ${status === 'accepted' ? 'chấp nhận' : 'từ chối'} học viên!`);
                 loadStudents();
             } catch (err) {
@@ -169,18 +169,18 @@
         async function loadStudents() {
             const tbody = document.getElementById('student-list');
             try {
-                const data = await TutorAPI.getStudents();
+                const data = await AuthAPI.getDashboard();
                 
-                document.getElementById('total-students').textContent = data.students.length;
-                document.getElementById('pending-students').textContent = data.students.filter(s => s.status === 'pending').length;
+                document.getElementById('total-students').textContent = data.bookings.length;
+                document.getElementById('pending-students').textContent = data.bookings.filter(s => s.status === 'pending').length;
 
-                if (data.students.length === 0) {
+                if (data.bookings.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-secondary">Chưa có học viên nào đăng ký lớp của bạn.</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = '';
-                data.students.forEach(student => {
+                data.bookings.forEach(student => {
                     const row = document.createElement('tr');
                     
                     let statusBadge = '';
@@ -202,16 +202,18 @@
                         actionButtons = `<button class="btn btn-light rounded-pill btn-sm px-3 text-secondary disabled">Đã xử lý</button>`;
                     }
 
+                    const dateStr = student.created_at ? new Date(student.created_at).toLocaleDateString('vi-VN') : 'Hôm nay';
+
                     row.innerHTML = `
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-primary" style="width: 40px; height: 40px;">
-                                    ${student.name.charAt(0).toUpperCase()}
+                                    ${(student.student_name || 'U').charAt(0).toUpperCase()}
                                 </div>
-                                <div class="fw-bold text-dark">${student.name}</div>
+                                <div class="fw-bold text-dark">${student.student_name || 'Học viên ẩn danh'}</div>
                             </div>
                         </td>
-                        <td class="text-secondary fw-medium">Hôm nay</td>
+                        <td class="text-secondary fw-medium">${dateStr}</td>
                         <td>${statusBadge}</td>
                         <td>${actionButtons}</td>
                     `;

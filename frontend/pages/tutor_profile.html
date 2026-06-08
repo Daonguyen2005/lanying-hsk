@@ -201,7 +201,8 @@
 
         async function loadProfile() {
             try {
-                const data = await TutorAPI.getProfile();
+                const data = await TutorAPI.getMyProfile();
+                window.current_hsk_level = data.hsk_level || 6;
                 
                 if (data.hourly_rate) document.getElementById('hourly_rate').value = data.hourly_rate;
                 if (data.bio) document.getElementById('bio').value = data.bio;
@@ -245,7 +246,13 @@
             }
 
             try {
-                await TutorAPI.updateProfile(bio, hourly_rate, specialization, levels);
+                await TutorAPI.updateMyProfile({
+                    hsk_level: window.current_hsk_level || 6,
+                    teaching_levels: levels,
+                    hourly_rate: hourly_rate,
+                    specialization: specialization,
+                    bio: bio
+                });
                 showToast('Lưu hồ sơ thành công!');
                 setTimeout(() => window.location.reload(), 1500);
             } catch (err) {

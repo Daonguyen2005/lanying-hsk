@@ -166,7 +166,7 @@
 
         async function loadTutors() {
             try {
-                const data = await TutorAPI.getAllTutors();
+                const data = await TutorAPI.getAll();
                 const container = document.getElementById('tutorList');
                 container.innerHTML = '';
 
