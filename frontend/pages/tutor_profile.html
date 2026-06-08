@@ -106,6 +106,10 @@
             msgEl.style.display = 'none';
             msgEl.className = 'alert';
 
+            const btnEl = document.querySelector('.btn-submit');
+            btnEl.disabled = true;
+            btnEl.textContent = 'Đang lưu...';
+
             const payload = {
                 hsk_level: parseInt(document.getElementById('hsk_level').value),
                 teaching_levels: document.getElementById('teaching_levels').value,
@@ -116,13 +120,18 @@
 
             try {
                 await TutorAPI.updateMyProfile(payload);
-                msgEl.textContent = "Lưu hồ sơ thành công! Trí tuệ nhân tạo (AI) đã tính toán lại điểm số của bạn.";
+                msgEl.textContent = "✅ Lưu hồ sơ thành công! AI đã cập nhật điểm tương thích của bạn.";
                 msgEl.classList.add('success');
+                msgEl.style.display = 'block';
                 window.scrollTo({top:0, behavior:'smooth'});
             } catch(err) {
-                msgEl.textContent = err.message;
+                msgEl.textContent = "❌ " + err.message;
                 msgEl.classList.add('error');
+                msgEl.style.display = 'block';
                 window.scrollTo({top:0, behavior:'smooth'});
+            } finally {
+                btnEl.disabled = false;
+                btnEl.textContent = 'Lưu Hồ sơ & Bật tìm kiếm AI';
             }
         }
 
