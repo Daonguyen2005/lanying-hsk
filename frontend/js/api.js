@@ -32,8 +32,8 @@ async function apiRequest(endpoint, method = "GET", body = null) {
 const AuthAPI = {
     register: (name, email, password, role = "student", hsk_level = 1, specialization = "") =>
         apiRequest("/api/auth/register", "POST", { name, email, password, role, hsk_level, specialization }),
-    login: (email, password, role) =>
-        apiRequest("/api/auth/login", "POST", { email, password, role }),
+    login: (email, password) =>
+        apiRequest("/api/auth/login", "POST", { email, password }),
     getDashboard: () => apiRequest("/api/auth/me/dashboard")
 };
 

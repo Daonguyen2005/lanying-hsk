@@ -132,12 +132,16 @@
             try {
                 const res = await AuthAPI.login(u, p);
                 localStorage.setItem('lanying_token', res.access_token);
-                localStorage.setItem('lanying_user', JSON.stringify(res.user));
+                localStorage.setItem('lanying_user', JSON.stringify({
+                    id: res.user_id,
+                    name: res.name,
+                    role: res.role
+                }));
                 
                 showToast('Đăng nhập thành công! Đang chuyển hướng...');
                 setTimeout(() => {
-                    if (res.user.role === 'tutor') {
-                        window.location.href = 'tutor_index.html';
+                    if (res.role === 'tutor') {
+                        window.location.href = 'tutor_profile.html'; // Tutors should go to their profile or dashboard
                     } else {
                         window.location.href = '../../index.html';
                     }
@@ -159,7 +163,7 @@
             const r = document.getElementById('reg_role').value;
 
             try {
-                await AuthAPI.register(u, p, n, r);
+                await AuthAPI.register(n, u, p, r);
                 showToast('Đăng ký thành công! Vui lòng đăng nhập.');
                 // Switch to login tab
                 const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));

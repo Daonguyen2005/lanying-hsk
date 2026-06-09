@@ -21,7 +21,6 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
-    role: str
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -108,8 +107,6 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user or not verify_password(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Email hoac mat khau khong dung!")
-    if user.role != req.role:
-        raise HTTPException(status_code=403, detail="Tài khoản không có quyền đăng nhập với vai trò này!")
     token = create_token({"sub": str(user.id), "role": user.role})
     return TokenResponse(
         access_token=token,
