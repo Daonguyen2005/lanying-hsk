@@ -30,7 +30,7 @@ async function apiRequest(endpoint, method = "GET", body = null) {
 
 // Auth APIs
 const AuthAPI = {
-    register: (name, email, password, role = "student", hsk_level = 1, specialization = "") =>
+    register: (name, email, password, role = "student", hsk_level = 5, specialization = "") =>
         apiRequest("/api/auth/register", "POST", { name, email, password, role, hsk_level, specialization }),
     login: (email, password) =>
         apiRequest("/api/auth/login", "POST", { email, password }),
