@@ -146,7 +146,7 @@
             body.scrollTop = body.scrollHeight;
 
             try {
-                const data = await ChatAPI.sendMessage(msg);
+                const data = await ChatAPI.send(msg);
                 typingDiv.remove();
 
                 const aiDiv = document.createElement('div');
