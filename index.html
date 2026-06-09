@@ -170,7 +170,8 @@
                 const container = document.getElementById('tutorList');
                 container.innerHTML = '';
 
-                data.tutors.forEach((tutor, index) => {
+                const tutorsData = Array.isArray(data) ? data : (data.tutors || []);
+                tutorsData.forEach((tutor, index) => {
                     const delayClass = `delay-${(index % 3 + 1) * 100}`;
                     const levels = tutor.teaching_levels ? tutor.teaching_levels.split(',').map(l => `HSK ${l}`).join(', ') : 'Chưa cập nhật';
                     const rate = tutor.hourly_rate ? tutor.hourly_rate.toLocaleString('vi-VN') + 'đ/h' : 'Thỏa thuận';
