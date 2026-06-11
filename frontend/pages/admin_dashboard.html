@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lanying HSK</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body class="admin-dashboard-layout">
+    <div class="bg-blobs"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="../../index.html" class="text-decoration-none text-center mb-4 d-block">
+            <span class="logo-icon">&#20013;</span>
+            <h4 class="fw-bold text-gradient mt-2">Admin Panel</h4>
+        </a>
+        
+        <nav class="nav flex-column mb-auto">
+            <a class="nav-link active" href="#"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+            <a class="nav-link" href="#"><i class="bi bi-people-fill"></i> Người dùng</a>
+            <a class="nav-link" href="#"><i class="bi bi-person-video3"></i> Gia sư</a>
+            <a class="nav-link" href="#"><i class="bi bi-calendar-check-fill"></i> Lịch học</a>
+        </nav>
+        
+        <div class="mt-auto">
+            <div class="glass-panel p-3 text-center mb-3">
+                <i class="bi bi-person-circle fs-2 text-primary"></i>
+                <h6 class="mt-2 fw-bold" id="adminName">Admin User</h6>
+                <small class="text-muted">Quản trị viên</small>
+            </div>
+            <button class="btn btn-outline-danger w-100 rounded-pill" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark">Tổng quan hệ thống</h2>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-people"></i></div>
+                    <div>
+                        <p class="text-muted mb-0 fw-medium">Tổng người dùng</p>
+                        <h3 class="fw-bold mb-0 text-dark" id="totalUsers">--</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-person-video3"></i></div>
+                    <div>
+                        <p class="text-muted mb-0 fw-medium">Tổng gia sư</p>
+                        <h3 class="fw-bold mb-0 text-dark" id="totalTutors">--</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-mortarboard"></i></div>
+                    <div>
+                        <p class="text-muted mb-0 fw-medium">Tổng học viên</p>
+                        <h3 class="fw-bold mb-0 text-dark" id="totalStudents">--</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bi bi-calendar2-check"></i></div>
+                    <div>
+                        <p class="text-muted mb-0 fw-medium">Lớp đã đặt</p>
+                        <h3 class="fw-bold mb-0 text-dark" id="totalBookings">--</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 animate-fade-up">
+            <h4 class="fw-bold mb-4">Người dùng mới đăng ký</h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ và tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Ngày đăng ký</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentUsersTable">
+                        <tr><td colspan="5" class="text-center">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check auth
+        const token = localStorage.getItem('lanying_token');
+        const user = JSON.parse(localStorage.getItem('lanying_user') || '{}');
+        
+        if (!token || user.role !== 'admin') {
+            alert('Bạn không có quyền truy cập trang này. Vui lòng đăng nhập với tài khoản admin!');
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('adminName').textContent = user.name || 'Admin';
+
+        function logout() {
+            localStorage.removeItem('lanying_token');
+            localStorage.removeItem('lanying_user');
+            window.location.href = 'login.html';
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Không thể tải dữ liệu');
+                
+                const data = await res.json();
+                
+                // Update stats
+                document.getElementById('totalUsers').textContent = data.total_users;
+                document.getElementById('totalTutors').textContent = data.total_tutors;
+                document.getElementById('totalStudents').textContent = data.total_students;
+                document.getElementById('totalBookings').textContent = data.total_bookings;
+                
+                // Update table
+                const tbody = document.getElementById('recentUsersTable');
+                tbody.innerHTML = '';
+                
+                if (data.recent_users && data.recent_users.length > 0) {
+                    data.recent_users.forEach(u => {
+                        const date = new Date(u.created_at).toLocaleDateString('vi-VN');
+                        let roleBadge = u.role === 'admin' ? '<span class="badge bg-danger">Admin</span>' : 
+                                        u.role === 'tutor' ? '<span class="badge bg-primary">Gia sư</span>' : 
+                                        '<span class="badge bg-success">Học viên</span>';
+                                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>#${u.id}</td>
+                                <td><div class="d-flex align-items-center"><div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold text-primary me-2" style="width: 32px; height: 32px">${u.name.charAt(0)}</div>${u.name}</div></td>
+                                <td>${u.email}</td>
+                                <td>${roleBadge}</td>
+                                <td>${date}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Chưa có người dùng nào.</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error(error);
+                document.getElementById('recentUsersTable').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Lỗi kết nối tới máy chủ!</td></tr>`;
+            }
+        }
+
+        // Load data on start
+        loadStats();
+    </script>
+</body>
+</html>

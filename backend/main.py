@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import auth, tutors, survey, chatbot
+from routers import auth, tutors, survey, chatbot, admin
 import os
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -40,6 +40,7 @@ app.include_router(auth.router)
 app.include_router(tutors.router)
 app.include_router(survey.router)
 app.include_router(chatbot.router)
+app.include_router(admin.router)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app.mount("/frontend", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="frontend")

@@ -262,3 +262,471 @@ body {
     font-size: 0.95rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     backdrop-filter: blur(10px); animation: fadeUp 0.3s;
 }
+
+/* --- From frontend/pages/admin_dashboard.html --- */
+        body.admin-dashboard-layout {
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+        .sidebar .nav-link {
+            color: var(--gray);
+            font-weight: 500;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+            width: calc(100% - 260px);
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+
+/* --- From frontend/pages/login.html --- */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Custom Nav Pills for Login/Register */
+        .nav-pills .nav-link {
+            color: var(--gray);
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s;
+        }
+        .nav-pills .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+/* --- From frontend/pages/survey.html --- */
+        /* Specific Survey Styles */
+        .survey-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+        .survey-card {
+            width: 100%;
+            max-width: 800px;
+        }
+        .survey-option {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .survey-option:hover {
+            transform: translateY(-3px);
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.1);
+        }
+        .survey-option.selected {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+            font-weight: 600;
+        }
+        .survey-option .radio-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .survey-option.selected .radio-circle {
+            border-color: white;
+            background: white;
+            box-shadow: inset 0 0 0 4px var(--primary);
+        }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeUp 0.5s ease-out; }
+
+/* --- From frontend/pages/tutor_index.html --- */
+        .dashboard-stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-stat-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .dashboard-stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-glow); }
+        .dashboard-stat-card:hover::before { opacity: 1; }
+        
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            background: transparent;
+        }
+        .table-custom thead th { border: none; color: var(--gray); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; padding: 0 1.5rem; }
+        .table-custom tbody tr { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px; transition: all 0.3s; }
+        .table-custom tbody tr:hover { transform: scale(1.01); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .table-custom tbody td { border: none; padding: 1.2rem 1.5rem; vertical-align: middle; }
+        .table-custom tbody td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        .table-custom tbody td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+
+/* --- From frontend/pages/tutor_profile.html --- */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+        .form-check-custom {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-check-custom:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.1);
+        }
+        .form-check-input:checked + .form-check-label {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+/* --- From frontend/pages/admin_dashboard.html --- */
+        body.admin-dashboard-layout {
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+        .sidebar .nav-link {
+            color: var(--gray);
+            font-weight: 500;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+            width: calc(100% - 260px);
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+
+/* --- From frontend/pages/login.html --- */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Custom Nav Pills for Login/Register */
+        .nav-pills .nav-link {
+            color: var(--gray);
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s;
+        }
+        .nav-pills .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+/* --- From frontend/pages/survey.html --- */
+        /* Specific Survey Styles */
+        .survey-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+        .survey-card {
+            width: 100%;
+            max-width: 800px;
+        }
+        .survey-option {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .survey-option:hover {
+            transform: translateY(-3px);
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.1);
+        }
+        .survey-option.selected {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+            font-weight: 600;
+        }
+        .survey-option .radio-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .survey-option.selected .radio-circle {
+            border-color: white;
+            background: white;
+            box-shadow: inset 0 0 0 4px var(--primary);
+        }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeUp 0.5s ease-out; }
+
+/* --- From frontend/pages/tutor_index.html --- */
+        .dashboard-stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-stat-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .dashboard-stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-glow); }
+        .dashboard-stat-card:hover::before { opacity: 1; }
+        
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            background: transparent;
+        }
+        .table-custom thead th { border: none; color: var(--gray); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; padding: 0 1.5rem; }
+        .table-custom tbody tr { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px; transition: all 0.3s; }
+        .table-custom tbody tr:hover { transform: scale(1.01); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .table-custom tbody td { border: none; padding: 1.2rem 1.5rem; vertical-align: middle; }
+        .table-custom tbody td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        .table-custom tbody td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+
+/* --- From frontend/pages/tutor_profile.html --- */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+        .form-check-custom {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-check-custom:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.1);
+        }
+        .form-check-input:checked + .form-check-label {
+            font-weight: 700;
+            color: var(--primary);
+        }
